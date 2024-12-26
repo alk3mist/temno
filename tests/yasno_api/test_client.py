@@ -1,6 +1,6 @@
 import pytest
 
-from yasno_api import client as yasno
+from yasno_api import yasno
 
 
 @pytest.mark.vcr
