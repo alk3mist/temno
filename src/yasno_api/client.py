@@ -1,5 +1,6 @@
 import hishel
-from model import ScheduleComponent, ScheduleResponse
+
+from .model import ScheduleComponent, ScheduleResponse
 
 SCHEDULE_URL = (
     "https://api.yasno.com.ua/api/v1/pages/home/schedule-turn-off-electricity"

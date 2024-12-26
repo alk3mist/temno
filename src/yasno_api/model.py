@@ -1,6 +1,5 @@
 from abc import ABC
 from datetime import datetime
-from pathlib import Path
 from typing import Annotated, Literal, Self
 
 from pydantic import AliasChoices, BaseModel, Field
@@ -78,8 +77,3 @@ class ScheduleResponse(BaseModel):
                 return c
         else:
             raise RuntimeError("Schedule not found")
-
-
-# Self-test
-SCHEDULE_JSON = Path(__file__).parent / "examples" / "schedule.json"
-m = ScheduleResponse.model_validate_json(SCHEDULE_JSON.read_text())
