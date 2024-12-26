@@ -19,15 +19,3 @@ def _fetch_all():
 def fetch_schedule() -> ScheduleComponent:
     validated_response = _fetch_all()
     return validated_response.schedule
-
-
-if __name__ == "__main__":
-    schedule = fetch_schedule()
-    print(f"updated at: {schedule.updated_at}")
-    dnipro = schedule.daily_schedule["dnipro"]
-    print(f"today: {dnipro.today.title}")
-    print("and")
-    if dnipro.tomorrow:
-        print(f"tomorrow: {dnipro.tomorrow.title}")
-    else:
-        print("no tomorrow(")
