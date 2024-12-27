@@ -30,22 +30,14 @@ class OutageEvent(BaseModel):
         return cls(start=start, end=end, type="DEFINITE_OUTAGE")
 
 
-class DailyGroups(BaseModel):
-    groups: dict[str, list[OutageEvent]]
+class DaySchedule(BaseModel):
     title: str
+    groups: dict[str, list[OutageEvent]]
 
 
-class DailySchedule(BaseModel):
-    today: DailyGroups
-    tomorrow: DailyGroups | None = None
-
-
-type WeeklySchedule = Annotated[
-    list[list[OutageEvent]], Field(min_length=7, max_length=7)
-]
-
-
-type WeeklyGroups = dict[str, WeeklySchedule]
+class CurrentSchedules(BaseModel):
+    today: DaySchedule
+    tomorrow: DaySchedule | None = None
 
 
 class ScheduleComponent(BaseComponent):
@@ -55,10 +47,9 @@ class ScheduleComponent(BaseComponent):
     updated_at: datetime = Field(
         validation_alias=AliasChoices("updated_at", "lastRegistryUpdateTime")
     )
-    daily_schedule: dict[Region, DailySchedule] = Field(
-        validation_alias=AliasChoices("daily_schedule", "dailySchedule")
+    current: dict[Region, CurrentSchedules] = Field(
+        validation_alias=AliasChoices("current", "dailySchedule")
     )
-    schedule: dict[Region, WeeklyGroups]
 
 
 type Component = Annotated[
@@ -76,4 +67,4 @@ class ScheduleResponse(BaseModel):
             if isinstance(c, ScheduleComponent):
                 return c
         else:
-            raise RuntimeError("Schedule not found")
+            raise RuntimeError("Schedule components not found")

@@ -1,11 +1,11 @@
 from datetime import datetime, timezone
-from typing import Literal, cast
+from typing import cast
 
 from rich import print
 
 from minions import arange
 from yasno_api import yasno
-from yasno_api.schema import OutageEvent
+from yasno_api.schema import DaySchedule, OutageEvent, Region
 
 
 def combine_events(events: list[OutageEvent]) -> list[OutageEvent]:
@@ -22,35 +22,31 @@ def to_local_time(utc_dt: datetime) -> datetime:
     return local_dt
 
 
-def print_schedule(city: Literal["kiev", "dnipro"], group: str):
+def print_group_events(daily_events: DaySchedule, group: str) -> None:
+    print(daily_events.title)
+    try:
+        events = daily_events.groups[group]
+    except KeyError:
+        print(f"Group {group} not found")
+    else:
+        print(combine_events(events))
+
+
+def print_schedules(region: Region, group: str):
     schedule = yasno.fetch_schedule()
     print(f"updated at: {to_local_time(schedule.updated_at)}")
-    print(f"{city} {group}")
+    print(f"{region} {group}")
 
     try:
-        city_schedule = schedule.daily_schedule[city]
+        region_schedules = schedule.current[region]
     except KeyError:
-        print(f"City {city} not found")
-        raise
+        print(f"City {region} not found")
+        return
 
-    try:
-        today_group = city_schedule.today.groups[group]
-    except KeyError:
-        print(f"Group {group} not found for today")
-        raise
-
-    print(city_schedule.today.title)
-    print(combine_events(today_group))
-
-    if city_schedule.tomorrow:
-        print(city_schedule.tomorrow.title)
-        try:
-            tomorrow_group = city_schedule.tomorrow.groups[group]
-        except KeyError:
-            print(f"Group {group} not found for tomorrow")
-        else:
-            print(combine_events(tomorrow_group))
+    print_group_events(region_schedules.today, group)
+    if region_schedules.tomorrow:
+        print_group_events(region_schedules.tomorrow, group)
 
 
 if __name__ == "__main__":
-    print_schedule(city="dnipro", group="2.1")
+    print_schedules(region="dnipro", group="2.1")
