@@ -1,7 +1,7 @@
 [project]
 name = "temno"
 version = "0.1.0"
-description = "Exploring the Yasno API for lights out"
+description = "Explore Yasno API"
 readme = "README.md"
 requires-python = ">=3.13.1"
 dependencies = [

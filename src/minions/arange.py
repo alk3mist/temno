@@ -20,6 +20,14 @@ class ARange(Protocol[CT]):
     end: CT
 
 
+def is_empty(r: ARange[CT]) -> bool:
+    return r.start > r.end
+
+
+def equals(r: ARange[CT], other: ARange[CT]) -> bool:
+    return r.start == other.start and r.end == other.end
+
+
 def sort(ranges: Iterable[ARange[CT]]) -> list[ARange[CT]]:
     return sorted(ranges, key=attrgetter("start"))
 
