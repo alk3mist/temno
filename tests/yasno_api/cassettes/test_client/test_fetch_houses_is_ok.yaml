@@ -1,0 +1,66 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate
+      connection:
+      - keep-alive
+      host:
+      - api.yasno.com.ua
+      user-agent:
+      - python-httpx/0.28.1
+    method: GET
+    uri: https://api.yasno.com.ua/api/v1/electricity-outages-schedule/houses?region=dnipro&street_id=2060
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAAA52Zy24UMRBFfwX1epS4/Co7v8IgNIERyiKAQrJC/Dud0fSQCINz7rZ1y1Wut2+/
+        /7n8eHw4Hh8/3n1ebmKoYbd8Pdwfl5vF4/56/xSy2bJbvjx8e/q+frQrW37t/i1U/QU4TcH769qB
+        gJPTnZzcDYAtRHI0scMCM8TOMQqSFLnGH6kkSWXiMnKdHiQfIBWVgNFNs2B8b8h2SYPkU3Jzs4LQ
+        KOsMNQolgRyBiWOcRLeREm5RqOCLELlDQ3dogobLdCJxqMgs1udQNgc0E+K5h6bDFW/AkaFZUcJr
+        AHQhhhSSOYUkQWlCyZSk5CbxZSOufJUBZQYuAOwAmwG2EoMJdhCXmUwj53cATkbAPljGpy5HYOIU
+        ZIat5WAkrYzkVULZHQajZi5E3Pg6H+P/bc8EXAE4ly1f3p0nR5KkFSGmSdEQgBACZ+Tj0Wb9BiEq
+        UkZvhGm2kDyMVYh3IuZE4th1t8O8g7LD11E3eLMQeRNWsqZX5cXmZCNwslz5qOqmD0iioW8aDkSI
+        PPH6aHzOiRuFunD0uCJuqi4EoiE3KXTSRQj5lj2uyCVWtHKLfpqTjH1jnAQ7uyvBVmibZ/4MhQ71
+        MhdKexNKt4yUFcrVgkLAWSDN36wolpnSd81W3zVmndIbnQ00AkbDWIleIy/tovBMmVAMTrzT0E4g
+        Ub/P7eBUfUjV5ib0Z0RqDlla2pQNDzVs037FdEVXVH6qWFRoKTNlEJ0sXBdH/JPJlNldNqFPSIiA
+        FScU0mcyakqISSVbSiULaRyl/JRNIdTR2lUyoWoSoZmSGSL3Rqk55+0IeJRlc5JPCQJhTY0wbJcC
+        JhoIbWoKiRtJEiFy0Jpw39wHDWvKHCGyMA/mylSDA7AhgqkJtse/NHz4DfuQYgKvIgAA
+    headers:
+      Cache-Control:
+      - max-age=0
+      Connection:
+      - keep-alive
+      Content-Encoding:
+      - gzip
+      Content-Type:
+      - application/json
+      Date:
+      - Sun, 29 Dec 2024 13:15:50 GMT
+      Server:
+      - nginx
+      Set-Cookie:
+      - nlbi_2972768=WZ1RZhaGog3SKS7cuS3HMgAAAADIM8lrUieTcZ2aAwW1TJgk; HttpOnly; path=/;
+        Domain=.yasno.com.ua
+      - visid_incap_2972768=WBf+7Z5zT6WCcmP+N3CWlYVLcWcAAAAAQUIPAAAAAABuegvwJyd3iCdjEs/7xmxc;
+        expires=Sun, 28 Dec 2025 23:32:49 GMT; HttpOnly; path=/; Domain=.yasno.com.ua
+      - incap_ses_260_2972768=lm3LRToY4wGdfry+vbSbA4VLcWcAAAAAIZkLpTNTjvoacjRds6lXrw==;
+        path=/; Domain=.yasno.com.ua
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      - Origin
+      X-CDN:
+      - Imperva
+      X-Forwarded-Proto:
+      - https
+      X-Iinfo:
+      - 12-250124941-250121519 2NNN RT(1735478149417 42) q(0 0 0 -1) r(0 0) U18
+    status:
+      code: 200
+      message: OK
+version: 1

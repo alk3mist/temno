@@ -45,6 +45,8 @@ def group_schedule(s: DaySchedule, group: str) -> str:
 
 
 def schedule_component(component: ScheduleComponent, region: Region, group: str) -> str:
+    if component.current is None:
+        return "😺 no current schedules 😺"
     schedules = component.current[region]
     ret = f"""\
 Region: {region_(region)}

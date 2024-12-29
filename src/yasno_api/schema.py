@@ -47,8 +47,8 @@ class ScheduleComponent(BaseComponent):
     updated_at: datetime = Field(
         validation_alias=AliasChoices("updated_at", "lastRegistryUpdateTime")
     )
-    current: dict[Region, CurrentSchedules] = Field(
-        validation_alias=AliasChoices("current", "dailySchedule")
+    current: dict[Region, CurrentSchedules] | None = Field(
+        None, validation_alias=AliasChoices("current", "dailySchedule")
     )
 
 
@@ -68,3 +68,19 @@ class ScheduleResponse(BaseModel):
                 return c
         else:
             raise RuntimeError("Schedule components not found")
+
+
+class City(BaseModel):
+    id: int
+    name: str
+
+
+class Street(BaseModel):
+    id: int
+    name: str
+
+
+class House(BaseModel):
+    street_id: int
+    name: str
+    group: str
