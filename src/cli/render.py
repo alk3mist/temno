@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from datetime import datetime, time, timedelta, timezone
 from typing import NoReturn, cast
 
@@ -5,7 +6,7 @@ from minions import arange
 from yasno_api.schema import DaySchedule, OutageEvent, Region, ScheduleComponent
 
 
-def hours(v: float | int) -> time:
+def hours(v: float) -> time:
     dt = datetime.fromtimestamp(0, tz=timezone.utc) + timedelta(hours=v)
     ret = dt.time()
     return ret
@@ -27,15 +28,13 @@ def region_(r: Region) -> str:
 
 group_ = str
 
-dt = str
 
-
-def _combine_events(events: list[OutageEvent]) -> list[OutageEvent]:
+def _combine_events(events: list[OutageEvent]) -> Iterable[OutageEvent]:
     groups = arange.consecutive_groups(arange.sort(events))
-    combined_events = [
+    combined_events = (
         arange.combination(g, OutageEvent.create_definite) for g in groups
-    ]
-    return cast(list[OutageEvent], combined_events)
+    )
+    return cast(Iterable[OutageEvent], combined_events)
 
 
 def group_schedule(s: DaySchedule, group: str) -> str:
