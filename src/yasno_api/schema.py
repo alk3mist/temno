@@ -1,14 +1,15 @@
 from abc import ABC
-from typing import Annotated, Literal, Self, get_args
+from enum import StrEnum
+from typing import Annotated, Literal, Self
 
 from pydantic import AliasChoices, BaseModel, Field
 
-type Region = Literal["kiev", "dnipro"]
+Region = StrEnum("Region", ["kiev", "dnipro"])
 
 
 class BaseComponent(BaseModel, ABC):
     anchor: str = ""
-    available_regions: list[Region] = [*get_args(Region)]
+    available_regions: list[Region] = []
 
 
 class EditorComponent(BaseComponent):
