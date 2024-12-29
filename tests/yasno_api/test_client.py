@@ -4,12 +4,12 @@ from yasno_api import yasno
 
 
 @pytest.mark.vcr
-def test_fetch_is_ok():
+def test_fetch_schedule_is_ok():
     yasno.fetch_schedule()
 
 
 @pytest.mark.vcr
-def test_fetch_without_current_schedule_is_ok():
+def test_fetch_schedule_without_current_is_ok():
     yasno.fetch_schedule()
 
 
