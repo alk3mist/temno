@@ -1,15 +1,19 @@
+from datetime import datetime, time, timedelta, timezone
 from typing import NoReturn, cast
 
 from minions import arange
-from minions import timetravel as tt
 from yasno_api.schema import DaySchedule, OutageEvent, Region, ScheduleComponent
 
 
-def event(event: OutageEvent) -> str:
-    def _f(v: float) -> str:
-        return f"{tt.hours_as_time(v):%H:%M}"
+def hours(v: float | int) -> time:
+    dt = datetime.fromtimestamp(0, tz=timezone.utc) + timedelta(hours=v)
+    ret = dt.time()
+    return ret
 
-    return f"{_f(event.start)} - {_f(event.end)}"
+
+def event(event: OutageEvent) -> str:
+    fmt = "%H:%M"
+    return f"{hours(event.start):{fmt}} - {hours(event.end):{fmt}}"
 
 
 def region_(r: Region) -> str:
