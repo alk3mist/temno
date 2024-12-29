@@ -1,6 +1,5 @@
 from abc import ABC
-from datetime import datetime
-from typing import Annotated, Literal, Self
+from typing import Annotated, Literal, Self, get_args
 
 from pydantic import AliasChoices, BaseModel, Field
 
@@ -8,8 +7,8 @@ type Region = Literal["kiev", "dnipro"]
 
 
 class BaseComponent(BaseModel, ABC):
-    anchor: str
-    available_regions: list[Region]
+    anchor: str = ""
+    available_regions: list[Region] = [*get_args(Region)]
 
 
 class EditorComponent(BaseComponent):
@@ -41,12 +40,11 @@ class CurrentSchedules(BaseModel):
 
 
 class ScheduleComponent(BaseComponent):
-    template_name: Literal["electricity-outages-daily-schedule"]
-    title: str
-    description: str
-    updated_at: datetime = Field(
-        validation_alias=AliasChoices("updated_at", "lastRegistryUpdateTime")
+    template_name: Literal["electricity-outages-daily-schedule"] = (
+        "electricity-outages-daily-schedule"
     )
+    title: str = ""
+    description: str = ""
     current: dict[Region, CurrentSchedules] | None = Field(
         None, validation_alias=AliasChoices("current", "dailySchedule")
     )

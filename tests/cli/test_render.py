@@ -1,16 +1,10 @@
-from datetime import datetime
 from itertools import starmap
+from typing import Any
 
 import pytest
 
 from cli import render
-from yasno_api.schema import (
-    CurrentSchedules,
-    DaySchedule,
-    OutageEvent,
-    Region,
-    ScheduleComponent,
-)
+from yasno_api.schema import OutageEvent, Region, ScheduleComponent
 
 
 @pytest.fixture
@@ -26,27 +20,25 @@ def component() -> ScheduleComponent:
         (20.0, 20.5),
         (20.5, 21.0),
     ]
-
-    return ScheduleComponent(
-        anchor="foo",
-        template_name="electricity-outages-daily-schedule",
-        title="bar",
-        description="baz",
-        available_regions=["kiev", "dnipro"],
-        updated_at=datetime.now(),
-        current={
-            "dnipro": CurrentSchedules(
-                today=DaySchedule(
-                    title="Today",
-                    groups={"1.1": _to_events(_8_to_9_30 + _19_to_21)},
-                ),
-                tomorrow=DaySchedule(title="Tomorrow", groups={"1.1": []}),
-            ),
-            "kiev": CurrentSchedules(
-                today=DaySchedule(title="Today", groups={"1.1": []})
-            ),
+    current: dict[str, Any] = {
+        "dnipro": {
+            "today": {
+                "title": "Today",
+                "groups": {"1.1": _to_events(_8_to_9_30 + _19_to_21)},
+            },
+            "tomorrow": {
+                "title": "Tomorrow",
+                "groups": {"1.1": []},
+            },
         },
-    )
+        "kiev": {
+            "today": {
+                "title": "Today",
+                "groups": {"1.1": []},
+            },
+        },
+    }
+    return ScheduleComponent.model_validate({"dailySchedule": current})
 
 
 @pytest.mark.parametrize(
@@ -96,6 +88,12 @@ def test_component(
     component: ScheduleComponent,
 ):
     assert render.schedule_component(component, region, group) == "\n".join(result)
+
+
+def test_component_without_current_schedule(component: ScheduleComponent):
+    without_current = component.model_copy(update={"current": None})
+    expected = "😺 no current schedules 😺"
+    assert render.schedule_component(without_current, "dnipro", "1.1") == expected
 
 
 def _to_events(ranges: list[tuple[float, float]]) -> list[OutageEvent]:
