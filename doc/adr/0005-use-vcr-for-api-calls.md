@@ -14,7 +14,7 @@ We need the VCR functionality only in tests for now.
 
 ## Decision
 
-Use the vcr-recording package to record and reuse the API responses.
+Use the pytest-recording package to record and reuse the API responses.
 
 ## Consequences
 
