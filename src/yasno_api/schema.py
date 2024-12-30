@@ -1,10 +1,9 @@
 from abc import ABC
-from enum import StrEnum
 from typing import Annotated, Literal, Self
 
 from pydantic import AliasChoices, BaseModel, Field
 
-Region = StrEnum("Region", ["kiev", "dnipro"])
+type Region = Literal["kiev", "dnipro"]
 
 
 class BaseComponent(BaseModel, ABC):
@@ -36,7 +35,7 @@ class DaySchedule(BaseModel):
 
 
 class CurrentSchedules(BaseModel):
-    today: DaySchedule
+    today: DaySchedule | None = None
     tomorrow: DaySchedule | None = None
 
 
