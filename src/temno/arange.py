@@ -43,7 +43,8 @@ def contiguous(ranges: Iterable[ARange[CT]]) -> bool:
 
 
 def combination(
-    ranges: Sequence[ARange[CT]], range_factory: Callable[[CT, CT], ARange[CT]]
+    ranges: Sequence[ARange[CT]],
+    range_factory: Callable[[CT, CT], ARange[CT]],
 ) -> ARange[CT]:
     """Combines contiguous ranges into one.
     Warning: a sorted sequence required.
@@ -58,3 +59,11 @@ def consecutive_groups(ranges: Iterable[ARange[CT]]) -> Iterable[list[ARange[CT]
     Warning: a sorted sequence required.
     """
     yield from split_when(ranges, lambda a, b: not (abuts(a, b)))
+
+
+def combine_consecutive_groups(
+    ranges: Iterable[ARange[CT]], range_factory: Callable[[CT, CT], ARange[CT]]
+) -> Iterable[ARange[CT]]:
+    groups = consecutive_groups(sort(ranges))
+    combined_ranges = (combination(g, range_factory) for g in groups)
+    return combined_ranges

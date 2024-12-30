@@ -1,7 +1,8 @@
+from datetime import date, time
 from itertools import starmap
 
 from temno import calendar
-from yasno_api.schema import OutageEvent
+from temno.model import OutageEvent
 
 _CAL = """\
 BEGIN:VCALENDAR
@@ -21,6 +22,8 @@ END:VEVENT
 END:VCALENDAR"""
 
 
-def test_generate():
-    cal = calendar.generate(starmap(OutageEvent.create_definite, [(8, 12.5), (19, 22)]))
+def test_from_events():
+    raw_events = [(time(8), time(12, 30)), (time(19), time(22))]
+    events = starmap(OutageEvent.create_definite, raw_events)
+    cal = calendar.from_events(events, date.today())
     assert cal.to_ical().decode("utf-8").replace("\r\n", "\n").strip() == _CAL

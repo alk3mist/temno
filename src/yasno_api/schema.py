@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Self
 from pydantic import AliasChoices, BaseModel, Field
 
 type Region = Literal["kiev", "dnipro"]
+type EventType = Literal["DEFINITE_OUTAGE", "POSSIBLE_OUTAGE"]
 
 
 class BaseComponent(BaseModel, ABC):
@@ -22,7 +23,7 @@ class FAQComponent(BaseComponent):
 class OutageEvent(BaseModel):
     start: float
     end: float
-    type: Literal["DEFINITE_OUTAGE", "POSSIBLE_OUTAGE"]
+    type: EventType
 
     @classmethod
     def create_definite(cls, start: float, end: float) -> Self:

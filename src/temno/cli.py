@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from temno import render
+from temno import map_yasno, render
 from yasno_api import schema, yasno
 
 app = typer.Typer(no_args_is_help=True)
@@ -74,7 +74,8 @@ def schedule(
     except KeyError:
         return error_exit("Schedule for the group not found")
 
-    output = render.events(events)
+    temno_events = map_yasno.events_to_model_events(events)
+    output = render.events(temno_events)
     console.print(output)
 
 
