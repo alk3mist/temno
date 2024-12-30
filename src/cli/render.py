@@ -1,9 +1,9 @@
 from collections.abc import Iterable
 from datetime import datetime, time, timedelta, timezone
-from typing import NoReturn, cast
+from typing import cast
 
 from minions import arange
-from yasno_api.schema import DaySchedule, OutageEvent, Region, ScheduleComponent
+from yasno_api.schema import City, OutageEvent
 
 
 def hours(v: float) -> time:
@@ -17,19 +17,7 @@ def event(event: OutageEvent) -> str:
     return f"{hours(event.start):{fmt}} - {hours(event.end):{fmt}}"
 
 
-def region_(r: Region) -> str:
-    if r == "dnipro":
-        return "Dnipro"
-    elif r == "kiev":
-        return "Kyiv"
-    else:
-        return NoReturn(r)
-
-
-group_ = str
-
-
-def _combine_events(events: list[OutageEvent]) -> Iterable[OutageEvent]:
+def _combine_events(events: Iterable[OutageEvent]) -> Iterable[OutageEvent]:
     groups = arange.consecutive_groups(arange.sort(events))
     combined_events = (
         arange.combination(g, OutageEvent.create_definite) for g in groups
@@ -37,27 +25,15 @@ def _combine_events(events: list[OutageEvent]) -> Iterable[OutageEvent]:
     return cast(Iterable[OutageEvent], combined_events)
 
 
-def group_schedule(s: DaySchedule, group: str) -> str:
-    try:
-        events = _combine_events(s.groups[group])
-    except KeyError:
-        body = "Group not found"
-    else:
-        body = "\n".join(map(event, events)) or "😸 no outages 😸"
-    return f"{s.title}\n{body}"
+def events(events_: Iterable[OutageEvent]) -> str:
+    events = _combine_events(events_)
+    body = "\n".join(map(event, events))
+    return body
 
 
-def schedule_component(component: ScheduleComponent, region: Region, group: str) -> str:
-    if component.current is None:
-        return "😺 no current schedules 😺"
-    schedules = component.current[region]
-    ret = f"""\
-Region: {region_(region)}
-Group: {group_(group)}
-{group_schedule(schedules.today, group)}\
-"""
-    if schedules.tomorrow:
-        ret += f"""
-{group_schedule(schedules.tomorrow, group)}\
-"""
-    return ret
+def city(city_: City) -> str:
+    return f"{city_.id} - {city_.name}"
+
+
+def cities(cities_: list[City]) -> str:
+    return "\n".join(map(city, cities_))
