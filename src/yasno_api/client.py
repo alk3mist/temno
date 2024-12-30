@@ -25,16 +25,11 @@ HOUSES_URL = f"{BASE_URL}/electricity-outages-schedule/houses"
 
 
 def fetch_schedule() -> ScheduleComponent:
-    validated_response = _fetch_schedule()
-    return validated_response.schedule
-
-
-def _fetch_schedule() -> ScheduleResponse:
     with hishel.CacheClient() as client:
         response = client.get(SCHEDULE_URL)
 
     valid_response = _validate_response(response, ScheduleResponse.model_validate)
-    return valid_response
+    return valid_response.schedule
 
 
 def fetch_cities(region: Region) -> list[City]:
