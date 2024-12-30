@@ -1,34 +1,34 @@
-# TODO: generate calendar for daily events
-
-
 from collections.abc import Iterable
-from datetime import date, datetime, timedelta, timezone
-from functools import partial
+from datetime import date, datetime, timedelta, timezone, tzinfo
+from zoneinfo import ZoneInfo
 
-from ical.calendar import Calendar
-from ical.event import Event
+from icalendar import Calendar, Event
 
 from yasno_api.schema import OutageEvent
 
 
-def hours(d: date, v: float) -> datetime:
-    dt = datetime.fromtimestamp(0, tz=timezone.utc) + timedelta(hours=v)
+def hours(d: date, v: float, tz: tzinfo = timezone.utc) -> datetime:
+    dt = datetime.fromtimestamp(0, timezone.utc) + timedelta(hours=v)
     t = dt.time()
-    d = date.today()
-    return datetime.combine(d, t)
+    return datetime.combine(d, t, tz)
 
 
 def map_event(d: date, e: OutageEvent) -> Event:
-    ret = Event(
-        name=e.type,
-        dtstart=hours(d, e.start),
-        dtend=hours(d, e.end),
-    )
-    return ret
+    event = Event()
+    event.add("summary", e.type)
+    tz = ZoneInfo("Europe/Kyiv")
+    event.start = hours(d, e.start, tz)
+    event.end = hours(d, e.end, tz)
+    return event
 
 
 def generate(events: Iterable[OutageEvent]) -> Calendar:
     c = Calendar()
-    c.events.extend(list(map(partial(map_event, date.today()), events)))
+    c.add("prodid", "-//Power outages//Temno//en")
+    c.add("version", "2.0")
+    c["summary"] = "Power Outages"
+    d = date.today()
+    for e in events:
+        c.add_component(map_event(d, e))
 
     return c
