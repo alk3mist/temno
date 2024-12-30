@@ -9,10 +9,28 @@ dependencies = [
     "httpx>=0.28.1",
     "more-itertools>=10.5.0",
     "pydantic>=2.10.4",
-    "pytest-recording>=0.13.2",
-    "pytest>=8.3.4",
-    "ruff>=0.8.4",
     "rich>=13.9.4",
-    "pytest-cov>=6.0.0",
     "typer>=0.15.1",
 ]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "pytest-recording>=0.13.2",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.4",
+]
+
+# https://docs.astral.sh/uv/concepts/projects/config/#project-packaging
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+temno = "temno.cli:app"
+
+# https://packaging.python.org/en/latest/guides/creating-command-line-tools/#installing-the-package-with-pipx
+[project.entry-points."pipx.run"]
+temno = "temno.cli:app"
+
