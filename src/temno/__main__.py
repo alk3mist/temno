@@ -1,4 +1,4 @@
-from temno.cli.app import app
+from temno.cli import app
 
 if __name__ == "__main__":
     app()
