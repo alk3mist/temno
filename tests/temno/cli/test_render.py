@@ -2,9 +2,9 @@ from functools import partial
 from itertools import starmap
 
 import pytest
-
-from cli import render
 from yasno_api.schema import OutageEvent
+
+from temno.cli import render
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,7 @@ from collections.abc import Iterable
 from datetime import datetime, time, timedelta, timezone
 from typing import cast
 
-from minions import arange
+from temno.minions import arange
 from yasno_api.schema import City, OutageEvent
 
 

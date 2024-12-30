@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
-from cli import render
+from temno.cli import render
 from yasno_api import schema, yasno
 
 app = typer.Typer(no_args_is_help=True)
