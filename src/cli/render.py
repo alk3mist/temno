@@ -12,9 +12,9 @@ def hours(v: float) -> time:
     return ret
 
 
-def event(event: OutageEvent) -> str:
+def event(v: OutageEvent) -> str:
     fmt = "%H:%M"
-    return f"{hours(event.start):{fmt}} - {hours(event.end):{fmt}}"
+    return f"{hours(v.start):{fmt}} - {hours(v.end):{fmt}}"
 
 
 def _combine_events(events: Iterable[OutageEvent]) -> Iterable[OutageEvent]:
@@ -25,15 +25,15 @@ def _combine_events(events: Iterable[OutageEvent]) -> Iterable[OutageEvent]:
     return cast(Iterable[OutageEvent], combined_events)
 
 
-def events(events_: Iterable[OutageEvent]) -> str:
-    events = _combine_events(events_)
-    body = "\n".join(map(event, events))
+def events(v: Iterable[OutageEvent]) -> str:
+    events_ = _combine_events(v)
+    body = "\n".join(map(event, events_))
     return body
 
 
-def city(city_: City) -> str:
-    return f"{city_.id} - {city_.name}"
+def city(v: City) -> str:
+    return f"{v.id} - {v.name}"
 
 
-def cities(cities_: list[City]) -> str:
-    return "\n".join(map(city, cities_))
+def cities(v: list[City]) -> str:
+    return "\n".join(map(city, v))
