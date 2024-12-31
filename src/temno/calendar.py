@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Final
 from zoneinfo import ZoneInfo
 
@@ -14,7 +14,8 @@ def map_event(d: date, e: OutageEvent) -> Event:
     event = Event()
     event.add("summary", e.type)
     event.start = datetime.combine(d, e.start, _TZ)
-    event.end = datetime.combine(d, e.end, _TZ)
+    end_day = d if e.end.hour != 0 else d + timedelta(days=1)
+    event.end = datetime.combine(end_day, e.end, _TZ)
     return event
 
 
