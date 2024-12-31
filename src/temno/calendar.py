@@ -1,26 +1,31 @@
 from collections.abc import Iterable
 from datetime import date, datetime
+from typing import Final
 from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Event
 
 from temno.model import OutageEvent
 
+_TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
+
 
 def map_event(d: date, e: OutageEvent) -> Event:
     event = Event()
     event.add("summary", e.type)
-    tz = ZoneInfo("Europe/Kyiv")
-    event.start = datetime.combine(d, e.start, tz)
-    event.end = datetime.combine(d, e.end, tz)
+    event.start = datetime.combine(d, e.start, _TZ)
+    event.end = datetime.combine(d, e.end, _TZ)
     return event
 
 
 def from_events(events: Iterable[OutageEvent], day: date) -> Calendar:
     c = Calendar()
-    c.add("prodid", "-//Power outages//Temno//en")
     c.add("version", "2.0")
-    c["summary"] = "Power Outages"
+    c.add("prodid", "-//Temno//Power Outages//EN")
+    c.add("calscale", "GREGORIAN")
+    c.add("method", "PUBLISH")
+    c.add("x-wr-calname", "Power Outages")
+    c.add("x-wr-timezone", _TZ.key)
     for e in events:
         c.add_component(map_event(day, e))
 
