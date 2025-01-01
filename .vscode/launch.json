@@ -8,7 +8,28 @@
             "name": "Python Debugger: Module",
             "type": "debugpy",
             "request": "launch",
-            "module": "cli"
+            "module": "temno",
+            "args": ["schedule", "${input:region}", "${input:group}", "${input:when}"],
         }
-    ]
+    ],
+    "inputs": [
+        {
+            "id": "region",
+            "type": "promptString",
+            "description": "dnipro|kyiv",
+            "default": "dnipro",
+        },
+        {
+            "id": "group",
+            "type": "promptString",
+            "description": "your group: 1.1|1.2|2.1|...",
+            "default": "2.1",
+        },
+        {
+            "id": "when",
+            "type": "promptString",
+            "description": "today|tomorrow",
+            "default": "today",
+        },
+    ],
 }

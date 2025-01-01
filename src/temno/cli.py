@@ -1,6 +1,6 @@
 import logging
-from enum import StrEnum
-from typing import Annotated, cast, get_args
+from enum import StrEnum, auto
+from typing import Annotated, assert_never
 
 import typer
 from rich.console import Console
@@ -11,8 +11,24 @@ from yasno_api import schema, yasno
 
 app = typer.Typer(no_args_is_help=True)
 
-Region = StrEnum("Region", list(get_args(schema.Region.__value__)))
-When = StrEnum("When", ["today", "tomorrow"])
+
+class Region(StrEnum):
+    dnipro = auto()
+    kyiv = auto()
+
+    def to_yasno(self) -> schema.Region:
+        if self == Region.dnipro:
+            return "dnipro"
+        elif self == Region.kyiv:
+            return "kiev"
+        else:
+            assert_never(self)
+
+
+class When(StrEnum):
+    today = auto()
+    tomorrow = auto()
+
 
 console: Console
 error_console: Console
@@ -45,9 +61,9 @@ def error_exit(msg: str) -> None:
 
 @app.command()
 def schedule(
-    region: Annotated[Region, typer.Option()],
-    group: Annotated[str, typer.Option()],
-    when: Annotated[When, typer.Option()],
+    region: Annotated[Region, typer.Argument()],
+    group: Annotated[str, typer.Argument()],
+    when: Annotated[When, typer.Argument()] = When("today"),
 ):
     with Progress(
         SpinnerColumn(),
@@ -61,7 +77,7 @@ def schedule(
         return error_exit("Current schedule not found")
 
     try:
-        region_schedule = schedule.current[cast(schema.Region, region)]
+        region_schedule = schedule.current[region.to_yasno()]
     except KeyError:
         return error_exit("Schedule for the region not found")
 
@@ -80,13 +96,13 @@ def schedule(
 
 
 @app.command()
-def cities(region: Region = typer.Option(), *, ctx: typer.Context):
+def cities(region: Region = typer.Option()):
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         transient=True,
     ) as progress:
         progress.add_task("Fetching schedules...")
-        cities = yasno.fetch_cities(cast(schema.Region, region))
+        cities = yasno.fetch_cities(region.to_yasno())
 
     console.print(render.cities(cities))
