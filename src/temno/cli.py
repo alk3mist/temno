@@ -1,37 +1,16 @@
 import logging
-from enum import StrEnum, auto
-from typing import Annotated, assert_never
+from typing import Annotated
 
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from wireup import Inject
 
-from temno import map_yasno, render
-from yasno_api import schema, yasno
+from temno import commands, render
+from temno.bootstrap import container
+from temno.model import Region, When
 
 app = typer.Typer(no_args_is_help=True)
-
-
-class Region(StrEnum):
-    dnipro = auto()
-    kyiv = auto()
-
-    def to_yasno(self) -> schema.Region:
-        if self == Region.dnipro:
-            return "dnipro"
-        elif self == Region.kyiv:
-            return "kiev"
-        else:
-            assert_never(self)
-
-
-class When(StrEnum):
-    today = auto()
-    tomorrow = auto()
-
-
-console: Console
-error_console: Console
 
 
 @app.callback()
@@ -39,24 +18,30 @@ def setup(
     debug: Annotated[bool, typer.Option()] = False,
     pretty: bool = True,
 ):
-    global console, error_console
-    console = Console(
-        no_color=not pretty,
-        highlight=pretty,
-    )
-    error_console = Console(
-        stderr=True,
-        style="bold red",
-        no_color=not pretty,
-        highlight=pretty,
-    )
+    container.params.update({"pretty": pretty})
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
 
-def error_exit(msg: str) -> None:
+@container.autowire
+def error_exit(
+    msg: str, *, error_console: Annotated[Console, Inject(qualifier="error")]
+) -> None:
     error_console.print(msg)
     raise typer.Exit(1)
+
+
+@container.autowire
+def log(msg: str, *, console: Annotated[Console, Inject()]) -> None:
+    console.print(msg)
+
+
+def simple_progress() -> Progress:
+    return Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        transient=True,
+    )
 
 
 @app.command()
@@ -65,44 +50,21 @@ def schedule(
     group: Annotated[str, typer.Argument()],
     when: Annotated[When, typer.Argument()] = When("today"),
 ):
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress:
-        progress.add_task("Fetching schedules...")
-        schedule = yasno.fetch_schedule()
+    with simple_progress() as progress:
+        progress.add_task("Fetching schedule...")
 
-    if not schedule.current:
-        return error_exit("Current schedule not found")
+        try:
+            events = commands.get_events(region, group, when)
+        except commands.TemnoException as e:
+            return error_exit(e.msg)
 
-    try:
-        region_schedule = schedule.current[region.to_yasno()]
-    except KeyError:
-        return error_exit("Schedule for the region not found")
-
-    day_schedule: schema.DaySchedule | None = getattr(region_schedule, when, None)
-    if day_schedule is None:
-        return error_exit("Schedule for the day not found")
-
-    try:
-        events = day_schedule.groups[group]
-    except KeyError:
-        return error_exit("Schedule for the group not found")
-
-    temno_events = map_yasno.events_to_model_events(events)
-    output = render.events(temno_events)
-    console.print(output)
+    log(render.events(events))
 
 
 @app.command()
 def cities(region: Region = typer.Option()):
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress:
-        progress.add_task("Fetching schedules...")
-        cities = yasno.fetch_cities(region.to_yasno())
+    with simple_progress() as progress:
+        progress.add_task("Fetching cities...")
+        cities = commands.get_cities(region)
 
-    console.print(render.cities(cities))
+    log(render.cities(cities))

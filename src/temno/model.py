@@ -1,5 +1,6 @@
 from datetime import date, time
-from typing import Self
+from enum import StrEnum, auto
+from typing import Self, assert_never
 
 from pydantic import BaseModel
 
@@ -24,3 +25,21 @@ class DaySchedule(BaseModel):
 
 
 type City = _yasno.City
+
+
+class Region(StrEnum):
+    dnipro = auto()
+    kyiv = auto()
+
+    def to_yasno(self) -> _yasno.Region:
+        if self == Region.dnipro:
+            return "dnipro"
+        elif self == Region.kyiv:
+            return "kiev"
+        else:
+            assert_never(self)
+
+
+class When(StrEnum):
+    today = auto()
+    tomorrow = auto()
