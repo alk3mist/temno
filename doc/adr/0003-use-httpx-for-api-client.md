@@ -16,6 +16,6 @@ Use the HTTPX package.
 
 ## Consequences
 
-A new dependency introduced.
+A new dependency has been introduced.
 Sync and async modes for HTTP calls are available.
 API calls can be moked in tests with the RESPX package.

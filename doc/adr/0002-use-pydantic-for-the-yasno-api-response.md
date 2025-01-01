@@ -1,4 +1,4 @@
-# 2. Use Pydantic for the Yasno API response
+# 2. Use Pydantic for Yasno API response
 
 Date: 2024-12-27
 
@@ -16,5 +16,5 @@ Use Pydantic for parsing/validating the Yasno API response.
 
 ## Consequences
 
-Introduced new dependency.
+A new dependency has been introduced.
 It'll much easier to manipulate the response in client's code.  

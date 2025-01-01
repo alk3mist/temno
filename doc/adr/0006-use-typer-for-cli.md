@@ -18,5 +18,5 @@ User Typer for CLI commands.
 
 ## Consequences
 
-A new dependencie introduced.
+A new dependency has been introduced.
 It's easy to build CLI commands.

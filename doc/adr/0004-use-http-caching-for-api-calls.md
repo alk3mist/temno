@@ -20,5 +20,5 @@ Use HTTP caching via the Hishel package.
 
 ## Consequences
 
-A new dependency introduced.
+A new dependency has been introduced.
 The network traffic for API calls reduced.

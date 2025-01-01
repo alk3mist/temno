@@ -18,5 +18,5 @@ Use the pytest-recording package to record and reuse the API responses.
 
 ## Consequences
 
-A new dependency introduced.
+A new dependency has been introduced.
 API schema could be easily tested against recorded response.
