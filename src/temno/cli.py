@@ -25,9 +25,9 @@ def setup(
 
 @container.autowire
 def error_exit(
-    msg: str, *, error_console: Annotated[Console, Inject(qualifier="error")]
+    msg: str, *, err_console: Annotated[Console, Inject(qualifier="error")]
 ) -> None:
-    error_console.print(msg)
+    err_console.print(msg)
     raise typer.Exit(1)
 
 
