@@ -4,14 +4,16 @@ from typing import Annotated
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from wireup import Inject
+from wireup import Inject, create_container
 
-from temno import views
-from temno.bootstrap import container
+from temno import factories, views
 from temno.factories import YasnoAPI
 from temno.model import Region, When
 
 app = typer.Typer(no_args_is_help=True)
+
+
+container = create_container(service_modules=[factories])
 
 
 @app.callback()

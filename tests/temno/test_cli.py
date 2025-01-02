@@ -1,13 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Any, Literal
+from typing import Any
 
 import pytest
 from typer.testing import CliRunner
 
-from temno.bootstrap import container
-from temno.cli import app
+from temno.cli import app, container
 from temno.factories import YasnoAPI
-from yasno_api.schema import City, ScheduleComponent
+from yasno_api.schema import City, House, Region, ScheduleComponent, Street
 
 runner = CliRunner()
 
@@ -16,12 +15,20 @@ runner = CliRunner()
 class DummyAPI(YasnoAPI):
     schedule: ScheduleComponent
     cities: list[City] = field(default_factory=list)
+    streets: list[Street] = field(default_factory=list)
+    houses: list[House] = field(default_factory=list)
 
     def fetch_schedule(self) -> ScheduleComponent:
         return self.schedule
 
-    def fetch_cities(self, region: Literal["kiev"] | Literal["dnipro"]) -> list[City]:
+    def fetch_cities(self, region: Region) -> list[City]:
         return self.cities
+
+    def fetch_streets(self, region: Region, city_id: int) -> list[Street]:
+        return self.streets
+
+    def fetch_houses(self, region: Region, street_id: int) -> list[House]:
+        return self.houses
 
 
 @pytest.fixture
