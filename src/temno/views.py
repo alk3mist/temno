@@ -1,10 +1,9 @@
 from collections.abc import Iterable
+from operator import attrgetter
 
+from temno import map_yasno, model
+from temno.factories import YasnoAPI
 from yasno_api import schema
-
-from . import map_yasno, model
-from .bootstrap import container
-from .factories import YasnoAPI
 
 
 class TemnoException(Exception):
@@ -13,7 +12,6 @@ class TemnoException(Exception):
         super().__init__(*args)
 
 
-@container.autowire
 def events(
     region: model.Region,
     group: str,
@@ -44,10 +42,38 @@ def events(
     return temno_events
 
 
-@container.autowire
 def cities(
-    region: model.Region,
-    *,
-    yasno: YasnoAPI,
+    region: model.Region, search: str | None = None, *, yasno: YasnoAPI
 ) -> Iterable[model.City]:
-    return yasno.fetch_cities(region.to_yasno())
+    response = yasno.fetch_cities(region.to_yasno())
+    if not search:
+        return response
+    return _search(response, "name", search)
+
+
+def streets(
+    region: model.Region, city_id: int, search: str | None = None, *, yasno: YasnoAPI
+) -> Iterable[model.Street]:
+    response = yasno.fetch_streets(region.to_yasno(), city_id)
+    if not search:
+        return response
+    return _search(response, "name", search)
+
+
+def houses(
+    region: model.Region, street_id: int, search: str | None = None, *, yasno: YasnoAPI
+) -> Iterable[model.House]:
+    response = yasno.fetch_houses(region.to_yasno(), street_id)
+    if not search:
+        return response
+    return _search(response, "name", search)
+
+
+def _search[T](items: Iterable[T], field_name: str, search_word: str) -> Iterable[T]:
+    normalized_search = _normalize_text(search_word)
+    get_field = attrgetter(field_name)
+    return (i for i in items if normalized_search in _normalize_text(get_field(i)))
+
+
+def _normalize_text(w: str) -> str:
+    return w.lower().replace("'", "’")

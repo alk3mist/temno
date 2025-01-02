@@ -2,9 +2,8 @@ from collections.abc import Iterable
 from datetime import datetime, time, timedelta, timezone
 from typing import cast
 
+from temno import arange, model
 from yasno_api import schema as _yasno
-
-from . import arange, model
 
 
 def hours_to_time(v: float) -> time:

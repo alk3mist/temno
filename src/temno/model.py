@@ -25,6 +25,8 @@ class DaySchedule(BaseModel):
 
 
 type City = _yasno.City
+type Street = _yasno.Street
+type House = _yasno.House
 
 
 class Region(StrEnum):
