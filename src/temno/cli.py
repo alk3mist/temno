@@ -1,3 +1,4 @@
+import calendar
 import logging
 from typing import Annotated
 
@@ -8,7 +9,7 @@ from wireup import Inject
 
 from temno import views
 from temno.bootstrap import container
-from temno.model import Region, When
+from temno.model import OutageEvent, Region, When
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -58,9 +59,32 @@ def schedule(
         except views.TemnoException as e:
             return error_exit(e.msg)
 
-    fmt = "%H:%M"
-    output = "\n".join((f"{e.start:{fmt}} - {e.end:{fmt}}" for e in events))
+    output = "\n".join(map(event_to_str, events))
     log(output)
+
+
+def event_to_str(e: OutageEvent) -> str:
+    fmt = "%H:%M"
+    return f"{e.start:{fmt}} - {e.end:{fmt}} - {e.type}"
+
+
+@app.command()
+def weekly(
+    region: Annotated[Region, typer.Argument()],
+    group: Annotated[str, typer.Argument()],
+) -> None:
+    yasno = container.get(views.YasnoAPI)
+    with simple_progress() as progress:
+        progress.add_task("Fetching schedule...")
+        try:
+            week = views.weekly_events(region, group, yasno=yasno)
+        except views.TemnoException as e:
+            return error_exit(e.msg)
+
+    for i, day in enumerate(week):
+        day_name = calendar.day_abbr[i].upper()
+        output = "\n".join((f"{day_name} - {event_to_str(e)}" for e in day))
+        log(output)
 
 
 @app.command()

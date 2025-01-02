@@ -53,6 +53,30 @@ def events(
     return temno_events
 
 
+def weekly_events(
+    region: model.Region, group: str, *, yasno: YasnoAPI
+) -> list[Iterable[model.OutageEvent]]:
+    schedule = yasno.fetch_schedule()
+
+    if not schedule.weekly:
+        raise TemnoException("Weekly schedule not found")
+
+    try:
+        weekly_schedules = schedule.weekly[region.to_yasno()]
+    except KeyError:
+        raise TemnoException("Schedule for the region not found")
+
+    try:
+        events = weekly_schedules[f"group_{group}"]
+    except KeyError:
+        raise TemnoException("Schedule for the group not found")
+
+    temno_events = [
+        map_yasno.events_to_model_events(day_events) for day_events in events
+    ]
+    return temno_events
+
+
 def cities(
     region: model.Region, search: str | None = None, *, yasno: YasnoAPI
 ) -> Iterable[model.City]:

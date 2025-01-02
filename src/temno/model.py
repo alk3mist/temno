@@ -18,10 +18,17 @@ class OutageEvent(BaseModel):
     def create_definite(cls, start: time, end: time) -> Self:
         return cls(start=start, end=end, type="DEFINITE_OUTAGE")
 
+    @classmethod
+    def create_possible(cls, start: time, end: time) -> Self:
+        return cls(start=start, end=end, type="POSSIBLE_OUTAGE")
+
 
 class DaySchedule(BaseModel):
     day: date
     events: list[OutageEvent]
+
+
+type WeeklySchedule = list[list[OutageEvent]]
 
 
 type City = _yasno.City

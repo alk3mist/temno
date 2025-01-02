@@ -52,7 +52,7 @@ def schedule() -> ScheduleComponent:
     "args,code,output",
     [
         (("dnipro", "1.1", "today"), 0, "\n\n"),
-        (("dnipro", "1.2", "today"), 0, "\n08:00 - 12:30\n"),
+        (("dnipro", "1.2", "today"), 0, "\n08:00 - 12:30 - DEFINITE_OUTAGE\n"),
         (("dnipro", "1.1", "tomorrow"), 1, "Schedule for the day not found\n\n"),
         (("kyiv", "1.1", "today"), 1, "Schedule for the region not found\n\n"),
     ],
