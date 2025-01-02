@@ -37,8 +37,8 @@ def events_to_model_events(
 def __events_to_model_events(
     events: Iterable[_yasno.OutageEvent],
 ) -> Iterable[model.OutageEvent]:
-    events = iter(events)
-    head = more_itertools.first(events, None)
+    temno_events = map(event_to_model_event, events)
+    head = more_itertools.first(temno_events, None)
     if head is None:
         return []
 
@@ -50,8 +50,6 @@ def __events_to_model_events(
     else:
         assert_never(events_type)
 
-    events = more_itertools.prepend(head, events)
-    temno_events = map(event_to_model_event, events)
-
+    temno_events = more_itertools.prepend(head, temno_events)
     combined_events = arange.combine_consecutive_groups(temno_events, factory)
     return cast(Iterable[model.OutageEvent], combined_events)
