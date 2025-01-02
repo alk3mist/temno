@@ -49,6 +49,10 @@ class ScheduleComponent(BaseComponent):
     current: dict[Region, CurrentSchedules] | None = Field(
         None, validation_alias=AliasChoices("current", "dailySchedule")
     )
+    weekly: dict[Region, dict[str, list[list[OutageEvent]]]] = Field(
+        validation_alias=AliasChoices("weekly", "schedule"),
+        default_factory=dict,
+    )
 
 
 type Component = Annotated[
