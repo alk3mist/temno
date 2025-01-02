@@ -1,9 +1,20 @@
 from collections.abc import Iterable
 from operator import attrgetter
+from typing import Protocol
 
 from temno import map_yasno, model
-from temno.factories import YasnoAPI
 from yasno_api import schema
+
+
+class YasnoAPI(Protocol):
+    def fetch_schedule(self) -> schema.ScheduleComponent: ...
+    def fetch_cities(self, region: schema.Region) -> list[schema.City]: ...
+    def fetch_streets(
+        self, region: schema.Region, city_id: int
+    ) -> list[schema.Street]: ...
+    def fetch_houses(
+        self, region: schema.Region, street_id: int
+    ) -> list[schema.House]: ...
 
 
 class TemnoException(Exception):

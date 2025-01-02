@@ -4,8 +4,9 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner
 
-from temno.cli import app, container
-from temno.factories import YasnoAPI
+from temno.bootstrap import container
+from temno.cli import app
+from temno.views import YasnoAPI
 from yasno_api.schema import City, House, Region, ScheduleComponent, Street
 
 runner = CliRunner()

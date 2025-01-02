@@ -4,16 +4,13 @@ from typing import Annotated
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from wireup import Inject, create_container
+from wireup import Inject
 
-from temno import factories, views
-from temno.factories import YasnoAPI
+from temno import views
+from temno.bootstrap import container
 from temno.model import Region, When
 
 app = typer.Typer(no_args_is_help=True)
-
-
-container = create_container(service_modules=[factories])
 
 
 @app.callback()
@@ -53,7 +50,7 @@ def schedule(
     group: Annotated[str, typer.Argument()],
     when: Annotated[When, typer.Argument()] = When("today"),
 ) -> None:
-    yasno = container.get(YasnoAPI)
+    yasno = container.get(views.YasnoAPI)
     with simple_progress() as progress:
         progress.add_task("Fetching schedule...")
         try:
@@ -71,7 +68,7 @@ def cities(
     region: Region = typer.Argument(),
     search: Annotated[str | None, typer.Option()] = None,
 ) -> None:
-    yasno = container.get(YasnoAPI)
+    yasno = container.get(views.YasnoAPI)
     with simple_progress() as progress:
         progress.add_task("Fetching cities...")
         cities = views.cities(region, search, yasno=yasno)
@@ -86,7 +83,7 @@ def streets(
     city_id: Annotated[int, typer.Option()],
     search: Annotated[str | None, typer.Option()] = None,
 ) -> None:
-    yasno = container.get(YasnoAPI)
+    yasno = container.get(views.YasnoAPI)
     with simple_progress() as progress:
         progress.add_task("Fetching streets...")
         streets = views.streets(region, city_id, search, yasno=yasno)
@@ -101,7 +98,7 @@ def houses(
     street_id: Annotated[int, typer.Option()],
     search: Annotated[str | None, typer.Option()] = None,
 ) -> None:
-    yasno = container.get(YasnoAPI)
+    yasno = container.get(views.YasnoAPI)
     with simple_progress() as progress:
         progress.add_task("Fetching houses...")
         houses = views.houses(region, street_id, search, yasno=yasno)
