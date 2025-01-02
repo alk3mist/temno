@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Event
 
-from temno.model import OutageEvent
+from .model import OutageEvent
 
 _TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
 

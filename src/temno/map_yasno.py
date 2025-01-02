@@ -2,8 +2,9 @@ from collections.abc import Iterable
 from datetime import datetime, time, timedelta, timezone
 from typing import cast
 
-from temno import arange, model
 from yasno_api import schema as _yasno
+
+from . import arange, model
 
 
 def hours_to_time(v: float) -> time:
@@ -24,8 +25,8 @@ def events_to_model_events(
     events: Iterable[_yasno.OutageEvent],
 ) -> Iterable[model.OutageEvent]:
     temno_events = list(map(event_to_model_event, events))
-    comnbined_events = arange.combine_consecutive_groups(
+    combined_events = arange.combine_consecutive_groups(
         temno_events, model.OutageEvent.create_definite
     )
-    comnbined_events = cast(Iterable[model.OutageEvent], comnbined_events)
-    return comnbined_events
+    combined_events = cast(Iterable[model.OutageEvent], combined_events)
+    return combined_events

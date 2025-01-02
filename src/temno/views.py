@@ -1,9 +1,10 @@
 from collections.abc import Iterable
 
-from temno import map_yasno, model
-from temno.bootstrap import container
-from temno.factories import YasnoAPI
 from yasno_api import schema
+
+from . import map_yasno, model
+from .bootstrap import container
+from .factories import YasnoAPI
 
 
 class TemnoException(Exception):
@@ -13,7 +14,7 @@ class TemnoException(Exception):
 
 
 @container.autowire
-def get_events(
+def events(
     region: model.Region,
     group: str,
     when: model.When = model.When("today"),
@@ -44,7 +45,7 @@ def get_events(
 
 
 @container.autowire
-def get_cities(
+def cities(
     region: model.Region,
     *,
     yasno: YasnoAPI,

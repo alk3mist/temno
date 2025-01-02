@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 
-from temno.model import City, OutageEvent
+from .model import City, OutageEvent
 
 
 def event(v: OutageEvent) -> str:

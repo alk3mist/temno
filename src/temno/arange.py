@@ -2,7 +2,6 @@
 
 """Functional implementation of Range interface"""
 
-from abc import abstractmethod
 from collections.abc import Callable, Iterable, Sequence
 from itertools import pairwise
 from operator import attrgetter
@@ -12,7 +11,6 @@ from more_itertools import split_when
 
 
 class _Comparable(Protocol):
-    @abstractmethod
     def __lt__(self, other: Self, /) -> bool: ...
 
 
