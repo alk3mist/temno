@@ -53,7 +53,7 @@ def combination(
 
 
 def consecutive_groups(ranges: Iterable[ARange[CT]]) -> Iterable[list[ARange[CT]]]:
-    """Split ranges when a gap occures.
+    """Split ranges when a gap occurs.
     Warning: a sorted sequence required.
     """
     yield from split_when(ranges, lambda a, b: not (abuts(a, b)))
