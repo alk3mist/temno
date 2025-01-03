@@ -71,17 +71,20 @@ def event_to_str(e: OutageEvent) -> str:
     return f"{e.start:{fmt}} - {e.end:{fmt}} - {e.type}"
 
 
-@app.command()
+@app.command(help="Print the weekly outage schedule or export as iCalendar.")
 def weekly(
     region: Annotated[Region, typer.Argument()],
     group: Annotated[str, typer.Argument()],
     ical: Annotated[
         Path | None,
         typer.Option(
+            exists=False,
             file_okay=True,
             dir_okay=False,
             writable=True,
             resolve_path=True,
+            help='The name of the iCalendar file to export to(e.g. "group_1_1.ics").',
+            rich_help_panel="Export as iCalendar",
         ),
     ] = None,
 ) -> None:
@@ -103,7 +106,7 @@ def weekly(
         log(output)
 
 
-@app.command()
+@app.command(help="List cities of a region.")
 def cities(
     region: Region = typer.Argument(),
     search: Annotated[str | None, typer.Option()] = None,
@@ -117,7 +120,7 @@ def cities(
     log(output)
 
 
-@app.command()
+@app.command(help="List streets of a city in a region.")
 def streets(
     region: Annotated[Region, typer.Argument()],
     city_id: Annotated[int, typer.Option()],
@@ -132,7 +135,7 @@ def streets(
     log(output)
 
 
-@app.command()
+@app.command(help="List houses of a street with the outage group.")
 def houses(
     region: Annotated[Region, typer.Argument()],
     street_id: Annotated[int, typer.Option()],
