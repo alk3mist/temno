@@ -23,7 +23,7 @@ class TemnoException(Exception):
         super().__init__(*args)
 
 
-def events(
+def current_events(
     region: model.Region,
     group: str,
     when: model.When = model.When("today"),
