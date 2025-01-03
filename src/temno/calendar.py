@@ -1,3 +1,4 @@
+import uuid
 from collections.abc import Callable, Iterable
 from datetime import date, datetime, timedelta
 from typing import Final
@@ -5,6 +6,7 @@ from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Event
 
+from temno import calendar, model
 from temno.model import OutageEvent
 
 _TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
@@ -55,3 +57,17 @@ def from_events(
             c_event = _calendar_event(day, e, ts, get_next_id)
             c.add_component(c_event)
     return c
+
+
+def weekly_calendar(
+    events: list[Iterable[model.OutageEvent]],
+    ts: datetime,
+    get_next_id: IdGenerator = lambda: uuid.uuid4().hex,
+) -> bytes:
+    now = datetime.now()
+    day_event_pairs: list[tuple[date, Iterable[model.OutageEvent]]] = []
+    for dow, day_events in enumerate(events):
+        day = now.date() + timedelta(days=(7 - now.weekday() + dow) % 7)
+        day_event_pairs.append((day, day_events))
+    c = calendar.from_events(day_event_pairs, ts, get_next_id)
+    return c.to_ical()

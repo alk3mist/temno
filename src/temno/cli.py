@@ -1,5 +1,7 @@
 import calendar
 import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Annotated
 
 import typer
@@ -9,6 +11,7 @@ from wireup import Inject
 
 from temno import views
 from temno.bootstrap import container
+from temno.calendar import weekly_calendar
 from temno.model import OutageEvent, Region, When
 
 app = typer.Typer(no_args_is_help=True)
@@ -55,7 +58,7 @@ def schedule(
     with simple_progress() as progress:
         progress.add_task("Fetching schedule...")
         try:
-            events = views.events(region, group, when, yasno=yasno)
+            events = views.current_events(region, group, when, yasno=yasno)
         except views.TemnoException as e:
             return error_exit(e.msg)
 
@@ -72,6 +75,15 @@ def event_to_str(e: OutageEvent) -> str:
 def weekly(
     region: Annotated[Region, typer.Argument()],
     group: Annotated[str, typer.Argument()],
+    ical: Annotated[
+        Path | None,
+        typer.Option(
+            file_okay=True,
+            dir_okay=False,
+            writable=True,
+            resolve_path=True,
+        ),
+    ] = None,
 ) -> None:
     yasno = container.get(views.YasnoAPI)
     with simple_progress() as progress:
@@ -80,6 +92,10 @@ def weekly(
             week = views.weekly_events(region, group, yasno=yasno)
         except views.TemnoException as e:
             return error_exit(e.msg)
+
+    if ical is not None:
+        ical.write_bytes(weekly_calendar(week, datetime.now()))
+        return
 
     for i, day in enumerate(week):
         day_name = calendar.day_abbr[i].upper()
