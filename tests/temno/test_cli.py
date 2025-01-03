@@ -56,6 +56,7 @@ def schedule() -> ScheduleComponent:
         (("dnipro", "1.1", "tomorrow"), 1, "Schedule for the day not found\n\n"),
         (("kyiv", "1.1", "today"), 1, "Schedule for the region not found\n\n"),
     ],
+    ids=["empty", "combination", "day-not-found", "region-not-found"],
 )
 @pytest.mark.vcr
 def test_schedule(

@@ -41,6 +41,7 @@ from yasno_api import schema as yasno
         ),
         ([], []),
     ],
+    ids=["combination", "types-joint", "time-gap", "empty"],
 )
 def test_events_to_model_events(
     values: list[tuple[float, float, yasno.EventType]],
