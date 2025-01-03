@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import date, datetime, timedelta
 from typing import Final
 from zoneinfo import ZoneInfo
@@ -10,25 +10,48 @@ from temno.model import OutageEvent
 _TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
 
 
-def map_event(d: date, e: OutageEvent, ts: datetime) -> Event:
+type IdGenerator = Callable[[], str]
+
+
+def _calendar_event(
+    day: date,
+    outage_event: OutageEvent,
+    ts: datetime,
+    get_next_id: IdGenerator,
+) -> Event:
     event = Event()
-    event.add("summary", e.type)
-    event.start = datetime.combine(d, e.start, _TZ)
-    end_day = d if e.end.hour != 0 else d + timedelta(days=1)
-    event.end = datetime.combine(end_day, e.end, _TZ)
+    event.add("summary", outage_event.type)
     event.add("dtstamp", ts)
+    event["uid"] = get_next_id()
+
+    event.start = datetime.combine(day, outage_event.start, _TZ)
+    end_day = day if outage_event.end.hour != 0 else day + timedelta(days=1)
+    event.end = datetime.combine(end_day, outage_event.end, _TZ)
+
     return event
 
 
-def from_events(events: Iterable[OutageEvent], day: date, ts: datetime) -> Calendar:
+def _calendar_metadata() -> dict[str, str]:
+    return {
+        "version": "2.0",
+        "prodid": "-//Temno//Power Outages//EN",
+        "calscale": "GREGORIAN",
+        "method": "PUBLISH",
+        "summary": "Power Outages",
+        "x-wr-calname": "Power Outages",
+        "x-wr-timezone": _TZ.key,
+    }
+
+
+def from_events(
+    events: Iterable[tuple[date, Iterable[OutageEvent]]],
+    ts: datetime,
+    get_next_id: IdGenerator,
+) -> Calendar:
     c = Calendar()
-    c.add("version", "2.0")
-    c.add("prodid", "-//Temno//Power Outages//EN")
-    c.add("calscale", "GREGORIAN")
-    c.add("method", "PUBLISH")
-    c.add("summary", "Power Outages")
-    c.add("x-wr-calname", "Power Outages")
-    c.add("x-wr-timezone", _TZ.key)
-    for e in events:
-        c.add_component(map_event(day, e, ts))
+    c.update(_calendar_metadata())
+    for day, day_events in events:
+        for e in day_events:
+            c_event = _calendar_event(day, e, ts, get_next_id)
+            c.add_component(c_event)
     return c
