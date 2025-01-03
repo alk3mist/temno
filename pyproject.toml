@@ -37,3 +37,9 @@ temno = "temno.cli:app"
 [project.entry-points."pipx.run"]
 temno = "temno.cli:app"
 
+[tool.pytest.ini_options]
+minversion = "8.3.4"
+addopts = "-ra --color=yes"
+testpaths = [
+    "tests",
+]

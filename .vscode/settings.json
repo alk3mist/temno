@@ -1,10 +1,5 @@
 {
     "python.testing.pytestEnabled": true,
-    "python.testing.pytestArgs": [
-        "-vv",
-        "-s", 
-        "--color=yes",
-    ],
     "python.analysis.extraPaths": [
         "${workspaceFolder}/src",
     ],
