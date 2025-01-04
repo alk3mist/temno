@@ -21,7 +21,7 @@ TODO: check and fill out the installation instruction
 ```
 
 ### Find your blackout group
-```bash
+```console
 ❯ temno cities dnipro 
 1 - м. Апостолове
 2 - м. Верхівцеве
@@ -38,7 +38,7 @@ TODO: check and fill out the installation instruction
 ```
 
 ### Print your weekly schedule
-```sh
+```console
 ❯ temno schedule weekly dnipro 1.1
 MON - 00:00 - 04:00 - POSSIBLE_OUTAGE
 ...
@@ -46,7 +46,7 @@ SUN - 21:00 - 00:00 - POSSIBLE_OUTAGE
 ```
 
 ### Export your weekly schedule as an iCalendar
-```sh
+```console
 ❯ temno schedule weekly dnipro 2.1 --ical group_2_1.ics
 Calendar saved to "group_2_1.ics"
 ```
