@@ -13,7 +13,7 @@ TODO: check and fill out the installation instruction
 ## Examples
 
 ### Print help
-```sh
+```console
 ❯ temno --help
                                                                       
  Usage: temno [OPTIONS] COMMAND [ARGS]...                             
