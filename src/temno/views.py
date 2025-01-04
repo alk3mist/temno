@@ -6,8 +6,11 @@ from temno import map_yasno, model
 from yasno_api import schema
 
 
-class YasnoAPI(Protocol):
+class ScheduleAPI(Protocol):
     def fetch_schedule(self) -> schema.ScheduleComponent: ...
+
+
+class LocationAPI(Protocol):
     def fetch_cities(self, region: schema.Region) -> list[schema.City]: ...
     def fetch_streets(
         self, region: schema.Region, city_id: int
@@ -15,6 +18,9 @@ class YasnoAPI(Protocol):
     def fetch_houses(
         self, region: schema.Region, street_id: int
     ) -> list[schema.House]: ...
+
+
+class YasnoAPI(ScheduleAPI, LocationAPI, Protocol): ...
 
 
 class TemnoException(Exception):
@@ -28,9 +34,9 @@ def daily_events(
     group: str,
     when: model.When = model.When("today"),
     *,
-    yasno: YasnoAPI,
+    api: ScheduleAPI,
 ) -> Iterable[model.OutageEvent]:
-    schedule = yasno.fetch_schedule()
+    schedule = api.fetch_schedule()
 
     if not schedule.daily:
         raise TemnoException("Current schedule not found")
@@ -54,9 +60,9 @@ def daily_events(
 
 
 def weekly_events(
-    region: model.Region, group: str, *, yasno: YasnoAPI
+    region: model.Region, group: str, *, api: ScheduleAPI
 ) -> list[Iterable[model.OutageEvent]]:
-    schedule = yasno.fetch_schedule()
+    schedule = api.fetch_schedule()
 
     if not schedule.weekly:
         raise TemnoException("Weekly schedule not found")
@@ -78,27 +84,27 @@ def weekly_events(
 
 
 def cities(
-    region: model.Region, search: str | None = None, *, yasno: YasnoAPI
+    region: model.Region, search: str | None = None, *, api: LocationAPI
 ) -> Iterable[model.City]:
-    response = yasno.fetch_cities(region.to_yasno())
+    response = api.fetch_cities(region.to_yasno())
     if not search:
         return response
     return _search(response, "name", search)
 
 
 def streets(
-    region: model.Region, city_id: int, search: str | None = None, *, yasno: YasnoAPI
+    region: model.Region, city_id: int, search: str | None = None, *, api: LocationAPI
 ) -> Iterable[model.Street]:
-    response = yasno.fetch_streets(region.to_yasno(), city_id)
+    response = api.fetch_streets(region.to_yasno(), city_id)
     if not search:
         return response
     return _search(response, "name", search)
 
 
 def houses(
-    region: model.Region, street_id: int, search: str | None = None, *, yasno: YasnoAPI
+    region: model.Region, street_id: int, search: str | None = None, *, api: LocationAPI
 ) -> Iterable[model.House]:
-    response = yasno.fetch_houses(region.to_yasno(), street_id)
+    response = api.fetch_houses(region.to_yasno(), street_id)
     if not search:
         return response
     return _search(response, "name", search)

@@ -52,7 +52,7 @@ def daily(
         progress.add_task("Fetching schedule...")
         try:
             yasno = container.get(views.YasnoAPI)
-            events = views.daily_events(region, group, when, yasno=yasno)
+            events = views.daily_events(region, group, when, api=yasno)
         except views.TemnoException as e:
             return _error_exit(e.msg)
 
@@ -82,7 +82,7 @@ def weekly(
         progress.add_task("Fetching schedule...")
         try:
             yasno = container.get(views.YasnoAPI)
-            events = views.weekly_events(region, group, yasno=yasno)
+            events = views.weekly_events(region, group, api=yasno)
         except views.TemnoException as e:
             return _error_exit(e.msg)
 
@@ -143,7 +143,7 @@ def cities(
     yasno = container.get(views.YasnoAPI)
     with _simple_progress() as progress:
         progress.add_task("Fetching cities...")
-        cities = views.cities(region, search, yasno=yasno)
+        cities = views.cities(region, search, api=yasno)
 
     output = "\n".join((f"{c.id} - {c.name}" for c in cities))
     _log(output)
@@ -158,7 +158,7 @@ def streets(
     yasno = container.get(views.YasnoAPI)
     with _simple_progress() as progress:
         progress.add_task("Fetching streets...")
-        streets = views.streets(region, city_id, search, yasno=yasno)
+        streets = views.streets(region, city_id, search, api=yasno)
 
     output = "\n".join((f"{s.id} - {s.name}" for s in streets))
     _log(output)
@@ -175,7 +175,7 @@ def houses(
     yasno = container.get(views.YasnoAPI)
     with _simple_progress() as progress:
         progress.add_task("Fetching houses...")
-        houses = views.houses(region, street_id, search, yasno=yasno)
+        houses = views.houses(region, street_id, search, api=yasno)
 
     output = "\n".join((f"{h.name} - {h.group}" for h in houses))
     _log(output)
