@@ -1,3 +1,5 @@
+"""Implements the Plugin pattern for DI"""
+
 import uuid
 from datetime import datetime
 from typing import Annotated

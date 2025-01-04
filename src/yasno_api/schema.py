@@ -35,7 +35,7 @@ class DaySchedule(BaseModel):
     groups: dict[str, list[OutageEvent]]
 
 
-class CurrentSchedules(BaseModel):
+class DailySchedules(BaseModel):
     today: DaySchedule | None = None
     tomorrow: DaySchedule | None = None
 
@@ -46,8 +46,8 @@ class ScheduleComponent(BaseComponent):
     )
     title: str = ""
     description: str = ""
-    current: dict[Region, CurrentSchedules] | None = Field(
-        None, validation_alias=AliasChoices("current", "dailySchedule")
+    daily: dict[Region, DailySchedules] | None = Field(
+        None, validation_alias=AliasChoices("daily", "dailySchedule")
     )
     weekly: dict[Region, dict[str, list[list[OutageEvent]]]] = Field(
         validation_alias=AliasChoices("weekly", "schedule"),

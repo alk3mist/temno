@@ -23,7 +23,7 @@ class TemnoException(Exception):
         super().__init__(*args)
 
 
-def current_events(
+def daily_events(
     region: model.Region,
     group: str,
     when: model.When = model.When("today"),
@@ -32,11 +32,11 @@ def current_events(
 ) -> Iterable[model.OutageEvent]:
     schedule = yasno.fetch_schedule()
 
-    if not schedule.current:
+    if not schedule.daily:
         raise TemnoException("Current schedule not found")
 
     try:
-        region_schedule = schedule.current[region.to_yasno()]
+        region_schedule = schedule.daily[region.to_yasno()]
     except KeyError:
         raise TemnoException("Schedule for the region not found")
 

@@ -70,7 +70,7 @@ def test_render_calendar():
     now = datetime(2024, 12, 30, 3, 22)
 
     cal = calendar.render_calendar(
-        events=events,
+        events_by_day=events,
         clock=lambda: now,
         get_next_id=lambda: uuid.UUID(int=0).hex,
     )

@@ -9,20 +9,6 @@ from temno import arange, model
 from yasno_api import schema as _yasno
 
 
-def hours_to_time(v: float) -> time:
-    dt = datetime.fromtimestamp(0, tz=timezone.utc) + timedelta(hours=v)
-    ret = dt.time()
-    return ret
-
-
-def event_to_model_event(v: _yasno.OutageEvent) -> model.OutageEvent:
-    return model.OutageEvent(
-        start=hours_to_time(v.start),
-        end=hours_to_time(v.end),
-        type=v.type,
-    )
-
-
 def events_to_model_events(
     events: Iterable[_yasno.OutageEvent],
 ) -> Iterable[model.OutageEvent]:
@@ -37,7 +23,7 @@ def events_to_model_events(
 def __events_to_model_events(
     events: Iterable[_yasno.OutageEvent],
 ) -> Iterable[model.OutageEvent]:
-    temno_events = map(event_to_model_event, events)
+    temno_events = map(__event_to_model_event, events)
     head = more_itertools.first(temno_events, None)
     if head is None:
         return []
@@ -53,3 +39,17 @@ def __events_to_model_events(
     temno_events = more_itertools.prepend(head, temno_events)
     combined_events = arange.combine_consecutive_groups(temno_events, factory)
     return cast(Iterable[model.OutageEvent], combined_events)
+
+
+def __event_to_model_event(v: _yasno.OutageEvent) -> model.OutageEvent:
+    return model.OutageEvent(
+        start=__hours_to_time(v.start),
+        end=__hours_to_time(v.end),
+        type=v.type,
+    )
+
+
+def __hours_to_time(v: float) -> time:
+    dt = datetime.fromtimestamp(0, tz=timezone.utc) + timedelta(hours=v)
+    ret = dt.time()
+    return ret

@@ -15,10 +15,41 @@ class IdGenerator(Protocol):
 
 
 class Clock(Protocol):
-    def __call__(self) -> datetime: ...
+    def __call__(self) -> datetime:
+        "Returns the current time."
+        ...
 
 
-def _calendar_event(
+def render_calendar(
+    events_by_day: Iterable[Iterable[OutageEvent]],
+    clock: Clock,
+    get_next_id: IdGenerator,
+) -> Calendar:
+    "Creates a calendar assuming that the first day is today."
+    c = Calendar()
+    c.update(__calendar_metadata())
+    now = clock()
+    pairs = zip(__iter_dates(now.date()), events_by_day)
+    for day, events in pairs:
+        for event in events:
+            c_event = __calendar_event(day, event, now, get_next_id)
+            c.add_component(c_event)
+    return c
+
+
+def __calendar_metadata() -> dict[str, str]:
+    return {
+        "version": "2.0",
+        "prodid": "-//Temno//Power Outages//EN",
+        "calscale": "GREGORIAN",
+        "method": "PUBLISH",
+        "summary": "Power Outages",
+        "x-wr-calname": "Power Outages",
+        "x-wr-timezone": _TZ.key,
+    }
+
+
+def __calendar_event(
     day: date,
     outage_event: OutageEvent,
     ts: datetime,
@@ -36,33 +67,7 @@ def _calendar_event(
     return event
 
 
-def _calendar_metadata() -> dict[str, str]:
-    return {
-        "version": "2.0",
-        "prodid": "-//Temno//Power Outages//EN",
-        "calscale": "GREGORIAN",
-        "method": "PUBLISH",
-        "summary": "Power Outages",
-        "x-wr-calname": "Power Outages",
-        "x-wr-timezone": _TZ.key,
-    }
-
-
-def render_calendar(
-    events: Iterable[Iterable[OutageEvent]], clock: Clock, get_next_id: IdGenerator
-) -> Calendar:
-    c = Calendar()
-    c.update(_calendar_metadata())
-    now = clock()
-    pairs = zip(iter_dates(now.date()), events)
-    for day, day_events in pairs:
-        for event in day_events:
-            c_event = _calendar_event(day, event, now, get_next_id)
-            c.add_component(c_event)
-    return c
-
-
-def iter_dates(start: date) -> Iterator[date]:
+def __iter_dates(start: date) -> Iterator[date]:
     yield start
     d = start
     while True:

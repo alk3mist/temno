@@ -7,7 +7,6 @@ from typing import Annotated, assert_never
 import typer
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from wireup import Inject
 
 from temno import views
 from temno.bootstrap import container
@@ -26,19 +25,6 @@ def setup(
     container.params.update({"pretty": pretty})
     if debug:
         logging.basicConfig(level=logging.DEBUG)
-
-
-@container.autowire
-def error_exit(
-    msg: str, *, err_console: Annotated[Console, Inject(qualifier="error")]
-) -> None:
-    err_console.print(msg)
-    raise typer.Exit(1)
-
-
-@container.autowire
-def log(msg: str, *, console: Annotated[Console, Inject()]) -> None:
-    console.print(msg)
 
 
 ICalOption = Annotated[
@@ -66,13 +52,13 @@ def daily(
         progress.add_task("Fetching schedule...")
         try:
             yasno = container.get(views.YasnoAPI)
-            events = views.current_events(region, group, when, yasno=yasno)
+            events = views.daily_events(region, group, when, yasno=yasno)
         except views.TemnoException as e:
-            return error_exit(e.msg)
+            return _error_exit(e.msg)
 
     if ical is None:
         output = "\n".join(map(_event_to_str, events))
-        log(output)
+        _log(output)
         raise typer.Exit()
 
     events_by_day: list[Iterable[OutageEvent]]
@@ -98,7 +84,7 @@ def weekly(
             yasno = container.get(views.YasnoAPI)
             events = views.weekly_events(region, group, yasno=yasno)
         except views.TemnoException as e:
-            return error_exit(e.msg)
+            return _error_exit(e.msg)
 
     if ical is not None:
         _save_calendar(events, ical)
@@ -107,7 +93,7 @@ def weekly(
     for i, day in enumerate(events):
         day_name = day_abbr[i].upper()
         output = "\n".join((f"{day_name} - {_event_to_str(e)}" for e in day))
-        log(output)
+        _log(output)
 
 
 def _simple_progress() -> Progress:
@@ -118,12 +104,23 @@ def _simple_progress() -> Progress:
     )
 
 
+def _error_exit(msg: str) -> None:
+    err_console = container.get(Console, "error")
+    err_console.print(msg)
+    raise typer.Exit(1)
+
+
+def _log(msg: str) -> None:
+    console = container.get(Console)
+    console.print(msg)
+
+
 def _save_calendar(events_by_day: Iterable[Iterable[OutageEvent]], ical: Path) -> None:
     clock = container.get(Clock)
     get_next_id = container.get(IdGenerator)
     cal = render_calendar(events_by_day, clock, get_next_id)
     ical.write_bytes(cal.to_ical())
-    log(f'Calendar saved to "{ical.name}"')
+    _log(f'Calendar saved to "{ical.name}"')
 
 
 def _event_to_str(e: OutageEvent) -> str:
@@ -149,7 +146,7 @@ def cities(
         cities = views.cities(region, search, yasno=yasno)
 
     output = "\n".join((f"{c.id} - {c.name}" for c in cities))
-    log(output)
+    _log(output)
 
 
 @app.command(help="List the city streets in the region.")
@@ -164,7 +161,7 @@ def streets(
         streets = views.streets(region, city_id, search, yasno=yasno)
 
     output = "\n".join((f"{s.id} - {s.name}" for s in streets))
-    log(output)
+    _log(output)
 
 
 @app.command(
@@ -181,4 +178,4 @@ def houses(
         houses = views.houses(region, street_id, search, yasno=yasno)
 
     output = "\n".join((f"{h.name} - {h.group}" for h in houses))
-    log(output)
+    _log(output)
