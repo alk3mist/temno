@@ -3,14 +3,27 @@
 A CLI for [Yasno](https://yasno.com.ua) Outage Scheduling API.
 
 > [!WARNING] 
-> DISCLAIMER: This is a pet project / sandbox for exploring various dev tools. Do not use in production 😎.
+> 🚧 DISCLAIMER: This is a pet project / sandbox for exploring various dev tools.
+> Do not use in production 😎.
 
 
 ## Installation
 
-TODO: check and fill out the installation instruction
+Install with `uv`:
+```console
+uv tool install --from git+https://github.com/alk3mist/temno.git temno
+```
+or with `pipx`:
+```console
+pipx install --python=3.13 "temno @ git+https://github.com/alk3mist/temno.git"
+```
 
-## Examples
+You can also run commands without installing:
+```console
+uvx --from git+https://github.com/alk3mist/temno.git temno <command>
+```
+
+## Usage
 
 ### Print help
 ```console
