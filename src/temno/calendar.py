@@ -1,18 +1,21 @@
-import uuid
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable, Iterator
 from datetime import date, datetime, timedelta
-from typing import Final
+from typing import Final, Protocol
 from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Event
 
-from temno import calendar, model
 from temno.model import OutageEvent
 
 _TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
 
 
-type IdGenerator = Callable[[], str]
+class IdGenerator(Protocol):
+    def __call__(self) -> str: ...
+
+
+class Clock(Protocol):
+    def __call__(self) -> datetime: ...
 
 
 def _calendar_event(
@@ -45,29 +48,23 @@ def _calendar_metadata() -> dict[str, str]:
     }
 
 
-def from_events(
-    events: Iterable[tuple[date, Iterable[OutageEvent]]],
-    ts: datetime,
-    get_next_id: IdGenerator,
+def render_calendar(
+    events: Iterable[Iterable[OutageEvent]], clock: Clock, get_next_id: IdGenerator
 ) -> Calendar:
     c = Calendar()
     c.update(_calendar_metadata())
-    for day, day_events in events:
-        for e in day_events:
-            c_event = _calendar_event(day, e, ts, get_next_id)
+    now = clock()
+    pairs = zip(iter_dates(now.date()), events)
+    for day, day_events in pairs:
+        for event in day_events:
+            c_event = _calendar_event(day, event, now, get_next_id)
             c.add_component(c_event)
     return c
 
 
-def weekly_calendar(
-    events: list[Iterable[model.OutageEvent]],
-    ts: datetime,
-    get_next_id: IdGenerator = lambda: uuid.uuid4().hex,
-) -> bytes:
-    now = datetime.now()
-    day_event_pairs: list[tuple[date, Iterable[model.OutageEvent]]] = []
-    for dow, day_events in enumerate(events):
-        day = now.date() + timedelta(days=(7 - now.weekday() + dow) % 7)
-        day_event_pairs.append((day, day_events))
-    c = calendar.from_events(day_event_pairs, ts, get_next_id)
-    return c.to_ical()
+def iter_dates(start: date) -> Iterator[date]:
+    yield start
+    d = start
+    while True:
+        d += timedelta(days=1)
+        yield d

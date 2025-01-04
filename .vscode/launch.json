@@ -9,7 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "temno",
-            "args": ["schedule", "${input:region}", "${input:group}", "${input:when}"],
+            "args": ["schedule", "weekly", "${input:region}", "${input:group}"],
         }
     ],
     "inputs": [

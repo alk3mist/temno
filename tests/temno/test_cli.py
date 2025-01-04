@@ -33,7 +33,7 @@ class DummyAPI(YasnoAPI):
 
 
 @pytest.fixture
-def schedule() -> ScheduleComponent:
+def schedule_component() -> ScheduleComponent:
     current: dict[str, Any] = {
         "dnipro": {
             "today": {
@@ -59,15 +59,15 @@ def schedule() -> ScheduleComponent:
     ids=["empty", "combination", "day-not-found", "region-not-found"],
 )
 @pytest.mark.vcr
-def test_schedule(
+def test_daily_schedule(
     args: tuple[str, ...],
     code: int,
     output: str,
-    schedule: ScheduleComponent,
+    schedule_component: ScheduleComponent,
 ):
-    dummy_api = DummyAPI(schedule)
+    dummy_api = DummyAPI(schedule_component)
     with container.override.service(YasnoAPI, dummy_api):
-        result = runner.invoke(app, ["schedule", *args])
+        result = runner.invoke(app, ["schedule", "daily", *args])
 
     assert result.exit_code == code, result.output
     assert result.stdout == output

@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, time
+from datetime import datetime, time
 from itertools import starmap
 
 from icalendar import Calendar
@@ -54,27 +54,24 @@ END:VEVENT
 END:VCALENDAR"""
 
 
-def test_from_events():
-    day_1_raw_events = [
-        (time(8), time(12, 30)),
-        (time(19), time(22)),
-        (time(23, 30), time(0)),
-    ]
-    day_2_raw_events = [
-        (time(18), time(22)),
-        (time(23, 30), time(0)),
-    ]
-    day_1_events = starmap(OutageEvent.create_definite, day_1_raw_events)
-    day_2_events = starmap(OutageEvent.create_definite, day_2_raw_events)
-    day_1 = date(2024, 12, 30)
-    day_2 = date(2024, 12, 31)
-    ts = datetime(2024, 12, 30, 3, 22)
-    cal = calendar.from_events(
-        events=[
-            (day_1, day_1_events),
-            (day_2, day_2_events),
+def test_render_calendar():
+    raw_events = [
+        [
+            (time(8), time(12, 30)),
+            (time(19), time(22)),
+            (time(23, 30), time(0)),
         ],
-        ts=ts,
+        [
+            (time(18), time(22)),
+            (time(23, 30), time(0)),
+        ],
+    ]
+    events = [starmap(OutageEvent.create_definite, day) for day in raw_events]
+    now = datetime(2024, 12, 30, 3, 22)
+
+    cal = calendar.render_calendar(
+        events=events,
+        clock=lambda: now,
         get_next_id=lambda: uuid.UUID(int=0).hex,
     )
     assert display_calendar(cal) == _CAL

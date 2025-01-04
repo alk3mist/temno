@@ -1,8 +1,8 @@
-import calendar
 import logging
-from datetime import datetime
+from calendar import day_abbr
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, assert_never
 
 import typer
 from rich.console import Console
@@ -11,10 +11,11 @@ from wireup import Inject
 
 from temno import views
 from temno.bootstrap import container
-from temno.calendar import weekly_calendar
+from temno.calendar import Clock, IdGenerator, render_calendar
 from temno.model import OutageEvent, Region, When
 
 app = typer.Typer(no_args_is_help=True)
+schedule = typer.Typer(no_args_is_help=True)
 
 
 @app.callback()
@@ -40,7 +41,76 @@ def log(msg: str, *, console: Annotated[Console, Inject()]) -> None:
     console.print(msg)
 
 
-def simple_progress() -> Progress:
+ICalOption = Annotated[
+    Path | None,
+    typer.Option(
+        exists=False,
+        file_okay=True,
+        dir_okay=False,
+        writable=True,
+        resolve_path=True,
+        help='The name of the iCalendar file to export to(e.g. "group_1_1.ics").',
+        rich_help_panel="Export as iCalendar",
+    ),
+]
+
+
+@schedule.command(help="Print the daily outage schedule or export as iCalendar.")
+def daily(
+    region: Annotated[Region, typer.Argument()],
+    group: Annotated[str, typer.Argument()],
+    when: Annotated[When, typer.Argument()] = When("today"),
+    ical: ICalOption = None,
+) -> None:
+    with _simple_progress() as progress:
+        progress.add_task("Fetching schedule...")
+        try:
+            yasno = container.get(views.YasnoAPI)
+            events = views.current_events(region, group, when, yasno=yasno)
+        except views.TemnoException as e:
+            return error_exit(e.msg)
+
+    if ical is None:
+        output = "\n".join(map(_event_to_str, events))
+        log(output)
+        raise typer.Exit()
+
+    events_by_day: list[Iterable[OutageEvent]]
+    if when == When.today:
+        events_by_day = [events]
+    elif when == When.tomorrow:
+        events_by_day = [[], events]
+    else:
+        assert_never(when)
+
+    _save_calendar(events_by_day, ical)
+
+
+@schedule.command(help="Print the weekly outage schedule or export as iCalendar.")
+def weekly(
+    region: Annotated[Region, typer.Argument()],
+    group: Annotated[str, typer.Argument()],
+    ical: ICalOption = None,
+) -> None:
+    with _simple_progress() as progress:
+        progress.add_task("Fetching schedule...")
+        try:
+            yasno = container.get(views.YasnoAPI)
+            events = views.weekly_events(region, group, yasno=yasno)
+        except views.TemnoException as e:
+            return error_exit(e.msg)
+
+    if ical is not None:
+        _save_calendar(events, ical)
+        raise typer.Exit()
+
+    for i, day in enumerate(events):
+        day_name = day_abbr[i].upper()
+        output = "\n".join((f"{day_name} - {_event_to_str(e)}" for e in day))
+        log(output)
+
+
+def _simple_progress() -> Progress:
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -48,71 +118,33 @@ def simple_progress() -> Progress:
     )
 
 
-@app.command()
-def schedule(
-    region: Annotated[Region, typer.Argument()],
-    group: Annotated[str, typer.Argument()],
-    when: Annotated[When, typer.Argument()] = When("today"),
-) -> None:
-    yasno = container.get(views.YasnoAPI)
-    with simple_progress() as progress:
-        progress.add_task("Fetching schedule...")
-        try:
-            events = views.current_events(region, group, when, yasno=yasno)
-        except views.TemnoException as e:
-            return error_exit(e.msg)
-
-    output = "\n".join(map(event_to_str, events))
-    log(output)
+def _save_calendar(events_by_day: Iterable[Iterable[OutageEvent]], ical: Path) -> None:
+    clock = container.get(Clock)
+    get_next_id = container.get(IdGenerator)
+    cal = render_calendar(events_by_day, clock, get_next_id)
+    ical.write_bytes(cal.to_ical())
+    log(f'Calendar saved to "{ical.name}"')
 
 
-def event_to_str(e: OutageEvent) -> str:
+def _event_to_str(e: OutageEvent) -> str:
     fmt = "%H:%M"
     return f"{e.start:{fmt}} - {e.end:{fmt}} - {e.type}"
 
 
-@app.command(help="Print the weekly outage schedule or export as iCalendar.")
-def weekly(
-    region: Annotated[Region, typer.Argument()],
-    group: Annotated[str, typer.Argument()],
-    ical: Annotated[
-        Path | None,
-        typer.Option(
-            exists=False,
-            file_okay=True,
-            dir_okay=False,
-            writable=True,
-            resolve_path=True,
-            help='The name of the iCalendar file to export to(e.g. "group_1_1.ics").',
-            rich_help_panel="Export as iCalendar",
-        ),
-    ] = None,
-) -> None:
-    yasno = container.get(views.YasnoAPI)
-    with simple_progress() as progress:
-        progress.add_task("Fetching schedule...")
-        try:
-            week = views.weekly_events(region, group, yasno=yasno)
-        except views.TemnoException as e:
-            return error_exit(e.msg)
-
-    if ical is not None:
-        ical.write_bytes(weekly_calendar(week, datetime.now()))
-        return
-
-    for i, day in enumerate(week):
-        day_name = calendar.day_abbr[i].upper()
-        output = "\n".join((f"{day_name} - {event_to_str(e)}" for e in day))
-        log(output)
+app.add_typer(
+    schedule,
+    name="schedule",
+    help="Print schedules or export as an iCalendar.",
+)
 
 
-@app.command(help="List cities of a region.")
+@app.command(help="List the cities of the region.")
 def cities(
     region: Region = typer.Argument(),
     search: Annotated[str | None, typer.Option()] = None,
 ) -> None:
     yasno = container.get(views.YasnoAPI)
-    with simple_progress() as progress:
+    with _simple_progress() as progress:
         progress.add_task("Fetching cities...")
         cities = views.cities(region, search, yasno=yasno)
 
@@ -120,14 +152,14 @@ def cities(
     log(output)
 
 
-@app.command(help="List streets of a city in a region.")
+@app.command(help="List the city streets in the region.")
 def streets(
     region: Annotated[Region, typer.Argument()],
     city_id: Annotated[int, typer.Option()],
     search: Annotated[str | None, typer.Option()] = None,
 ) -> None:
     yasno = container.get(views.YasnoAPI)
-    with simple_progress() as progress:
+    with _simple_progress() as progress:
         progress.add_task("Fetching streets...")
         streets = views.streets(region, city_id, search, yasno=yasno)
 
@@ -135,14 +167,16 @@ def streets(
     log(output)
 
 
-@app.command(help="List houses of a street with the outage group.")
+@app.command(
+    help="List the houses of the street along with the group of power outages."
+)
 def houses(
     region: Annotated[Region, typer.Argument()],
     street_id: Annotated[int, typer.Option()],
     search: Annotated[str | None, typer.Option()] = None,
 ) -> None:
     yasno = container.get(views.YasnoAPI)
-    with simple_progress() as progress:
+    with _simple_progress() as progress:
         progress.add_task("Fetching houses...")
         houses = views.houses(region, street_id, search, yasno=yasno)
 
