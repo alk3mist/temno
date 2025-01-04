@@ -13,7 +13,7 @@ TODO: check and fill out the installation instruction
 ## Examples
 
 ### Print help
-```zsh
+```sh
 ❯ temno --help
                                                                       
  Usage: temno [OPTIONS] COMMAND [ARGS]...                             
@@ -21,7 +21,7 @@ TODO: check and fill out the installation instruction
 ```
 
 ### Find your blackout group
-```sh
+```bash
 ❯ temno cities dnipro 
 1 - м. Апостолове
 2 - м. Верхівцеве
