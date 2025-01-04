@@ -5,11 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Module",
+            "name": "CLI Weekly Schedule - Debug",
             "type": "debugpy",
             "request": "launch",
             "module": "temno",
             "args": ["schedule", "weekly", "${input:region}", "${input:group}"],
+        },
+        {
+            "name": "CLI Cities - Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "temno",
+            "args": ["cities", "${input:region}"],
         }
     ],
     "inputs": [
@@ -24,12 +31,6 @@
             "type": "promptString",
             "description": "your group: 1.1|1.2|2.1|...",
             "default": "2.1",
-        },
-        {
-            "id": "when",
-            "type": "promptString",
-            "description": "today|tomorrow",
-            "default": "today",
         },
     ],
 }
