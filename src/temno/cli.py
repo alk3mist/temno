@@ -97,10 +97,12 @@ def weekly(
 
 
 def _simple_progress() -> Progress:
+    console = container.get(Console)
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
         transient=True,
+        console=console,
     )
 
 
