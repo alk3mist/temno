@@ -3,7 +3,7 @@
 A CLI for [Yasno](https://yasno.com.ua) Outage Scheduling API.
 
 > [!WARNING] 
-> 🚧 DISCLAIMER: This is a pet project / sandbox for exploring various dev tools.
+> 🚧 This is a pet project / sandbox for exploring various dev tools.
 > Do not use in production 😎.
 
 
