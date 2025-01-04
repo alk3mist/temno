@@ -63,5 +63,3 @@ SUN - 21:00 - 00:00 - POSSIBLE_OUTAGE
 ❯ temno schedule weekly dnipro 2.1 --ical group_2_1.ics
 Calendar saved to "group_2_1.ics"
 ```
-
-TODO: add examples for daily outages
