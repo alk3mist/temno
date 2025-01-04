@@ -1,6 +1,6 @@
 # Based on https://martinfowler.com/eaaDev/Range.html
 
-"""Functional implementation of Range interface"""
+"""Functional implementation of the Range interface"""
 
 from collections.abc import Callable, Iterable, Sequence
 from itertools import pairwise
