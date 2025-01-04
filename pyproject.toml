@@ -17,7 +17,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "ipykernel>=6.29.5",
     "pytest-recording>=0.13.2",
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
