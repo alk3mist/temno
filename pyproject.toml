@@ -1,10 +1,11 @@
 [project]
 name = "temno"
-version = "0.1.0"
+version = "0.1.1"
 description = "Exploring Yasno's Outage Scheduling API"
 readme = "README.md"
 requires-python = ">=3.13.1"
 dependencies = [
+    "dependency-injector>=4.45.0",
     "hishel>=0.1.1",
     "httpx>=0.28.1",
     "icalendar>=6.1.0",
@@ -12,7 +13,6 @@ dependencies = [
     "pydantic>=2.10.4",
     "rich>=13.9.4",
     "typer>=0.15.1",
-    "wireup>=0.15.0",
 ]
 
 [dependency-groups]

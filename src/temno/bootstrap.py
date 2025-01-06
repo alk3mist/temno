@@ -2,33 +2,28 @@
 
 import uuid
 from datetime import datetime
-from typing import Annotated
 
-import wireup
+from dependency_injector.containers import DeclarativeContainer
+from dependency_injector.providers import Configuration, Singleton
 from rich.console import Console
 
 from temno.calendar import Clock, IdGenerator
 from temno.views import YasnoAPI
 from yasno_api import client
 
-container = wireup.create_container()
 
-
-@container.register
 def get_yasno() -> YasnoAPI:
     return client
 
 
-@container.register
-def console(*, pretty: Annotated[bool, wireup.Inject(param="pretty")]) -> Console:
+def console(pretty: bool) -> Console:
     return Console(
         no_color=not pretty,
         highlight=pretty,
     )
 
 
-@container.register(qualifier="error")
-def err_console(*, pretty: Annotated[bool, wireup.Inject(param="pretty")]) -> Console:
+def err_console(pretty: bool) -> Console:
     return Console(
         stderr=True,
         style="bold red",
@@ -37,11 +32,18 @@ def err_console(*, pretty: Annotated[bool, wireup.Inject(param="pretty")]) -> Co
     )
 
 
-@container.register()
 def get_id_generator() -> IdGenerator:
     return lambda: uuid.uuid4().hex
 
 
-@container.register()
 def get_clock() -> Clock:
     return datetime.now
+
+
+class Container(DeclarativeContainer):
+    config = Configuration()
+    yasno = Singleton(YasnoAPI)
+    console = Singleton(console, pretty=config.pretty)
+    err_console = Singleton(err_console, pretty=config.pretty)
+    id_generator = Singleton(get_id_generator)
+    clock = Singleton(get_clock)

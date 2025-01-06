@@ -4,7 +4,7 @@ Date: 2025-01-01
 
 ## Status
 
-Accepted
+Superseded by [8. Use Dependency Injector for DI](0008-use-dependency-injector-for-di.md)
 
 ## Context
 

@@ -4,7 +4,7 @@ from typing import Any
 import pytest
 from typer.testing import CliRunner
 
-from temno.bootstrap import container
+from temno.bootstrap import Container
 from temno.cli import app
 from temno.views import YasnoAPI
 from yasno_api.schema import City, House, Region, ScheduleComponent, Street
@@ -66,7 +66,7 @@ def test_daily_schedule(
     schedule_component: ScheduleComponent,
 ):
     dummy_api = DummyAPI(schedule_component)
-    with container.override.service(YasnoAPI, dummy_api):
+    with Container.yasno.override(dummy_api):  # type: ignore
         result = runner.invoke(app, ["schedule", "daily", *args])
 
     assert result.exit_code == code, result.output
