@@ -8,7 +8,7 @@ import typer
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from temno import views
-from temno.bootstrap import Container
+from temno.bootstrap import container
 from temno.calendar import render_calendar
 from temno.model import OutageEvent, Region, When
 
@@ -18,12 +18,11 @@ schedule = typer.Typer(no_args_is_help=True)
 
 @app.callback()
 def setup(
+    ctx: typer.Context,
     debug: Annotated[bool, typer.Option()] = False,
     pretty: bool = True,
 ) -> None:
-    container = Container()
     container.config.from_dict({"pretty": pretty})
-    container.wire(modules=[__name__])
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
@@ -52,7 +51,7 @@ def daily(
     with _simple_progress() as progress:
         progress.add_task("Fetching schedule...")
         try:
-            yasno = Container.yasno()
+            yasno = container.yasno()
             events = views.daily_events(region, group, when, api=yasno)
         except views.TemnoException as e:
             return _error_exit(e.msg)
@@ -82,7 +81,7 @@ def weekly(
     with _simple_progress() as progress:
         progress.add_task("Fetching schedule...")
         try:
-            yasno = Container.yasno()
+            yasno = container.yasno()
             events = views.weekly_events(region, group, api=yasno)
         except views.TemnoException as e:
             return _error_exit(e.msg)
@@ -98,7 +97,7 @@ def weekly(
 
 
 def _simple_progress() -> Progress:
-    console = Container.console()
+    console = container.console()
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -108,19 +107,19 @@ def _simple_progress() -> Progress:
 
 
 def _error_exit(msg: str) -> None:
-    err_console = Container.err_console()
+    err_console = container.err_console()
     err_console.print(msg)
     raise typer.Exit(1)
 
 
 def _log(msg: str) -> None:
-    console = Container.console()
+    console = container.console()
     console.print(msg)
 
 
 def _save_calendar(events_by_day: Iterable[Iterable[OutageEvent]], ical: Path) -> None:
-    clock = Container.clock()
-    get_next_id = Container.id_generator()
+    clock = container.clock()
+    get_next_id = container.id_generator()
     cal = render_calendar(events_by_day, clock, get_next_id)
     ical.write_bytes(cal.to_ical())
     _log(f'Calendar saved to "{ical.name}"')
@@ -145,7 +144,7 @@ def cities(
 ) -> None:
     with _simple_progress() as progress:
         progress.add_task("Fetching cities...")
-        yasno = Container.yasno()
+        yasno = container.yasno()
         cities = views.cities(region, search, api=yasno)
 
     output = "\n".join((f"{c.id} - {c.name}" for c in cities))
@@ -160,7 +159,7 @@ def streets(
 ) -> None:
     with _simple_progress() as progress:
         progress.add_task("Fetching streets...")
-        yasno = Container.yasno()
+        yasno = container.yasno()
         streets = views.streets(region, city_id, search, api=yasno)
 
     output = "\n".join((f"{s.id} - {s.name}" for s in streets))
@@ -177,7 +176,7 @@ def houses(
 ) -> None:
     with _simple_progress() as progress:
         progress.add_task("Fetching houses...")
-        yasno = Container.yasno()
+        yasno = container.yasno()
         houses = views.houses(region, street_id, search, api=yasno)
 
     output = "\n".join((f"{h.name} - {h.group}" for h in houses))

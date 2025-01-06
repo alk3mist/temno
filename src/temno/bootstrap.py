@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 from dependency_injector.containers import DeclarativeContainer
-from dependency_injector.providers import Configuration, Singleton
+from dependency_injector.providers import Configuration, Factory, Singleton
 from rich.console import Console
 
 from temno.calendar import Clock, IdGenerator
@@ -43,7 +43,10 @@ def get_clock() -> Clock:
 class Container(DeclarativeContainer):
     config = Configuration()
     yasno = Singleton(get_yasno)
-    console = Singleton(console, pretty=config.pretty)
-    err_console = Singleton(err_console, pretty=config.pretty)
+    console = Factory(console, pretty=config.pretty)
+    err_console = Factory(err_console, pretty=config.pretty)
     id_generator = Singleton(get_id_generator)
     clock = Singleton(get_clock)
+
+
+container = Container()
