@@ -42,7 +42,7 @@ def get_clock() -> Clock:
 
 class Container(DeclarativeContainer):
     config = Configuration()
-    yasno = Singleton(YasnoAPI)
+    yasno = Singleton(get_yasno)
     console = Singleton(console, pretty=config.pretty)
     err_console = Singleton(err_console, pretty=config.pretty)
     id_generator = Singleton(get_id_generator)
