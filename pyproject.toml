@@ -32,9 +32,6 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/temno", "src/yasno_api"]
 
-[project.optional-dependencies]
-temno = [ "yasno_api" ]
-
 [project.urls]
 "Source" = "https://github.com/alk3mist/temno"
 "Tracker" = "https://github.com/alk3mist/temno"
