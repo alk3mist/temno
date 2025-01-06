@@ -18,7 +18,6 @@ schedule = typer.Typer(no_args_is_help=True)
 
 @app.callback()
 def setup(
-    ctx: typer.Context,
     debug: Annotated[bool, typer.Option()] = False,
     pretty: bool = True,
 ) -> None:
