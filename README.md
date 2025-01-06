@@ -58,8 +58,21 @@ MON - 00:00 - 04:00 - POSSIBLE_OUTAGE
 SUN - 21:00 - 00:00 - POSSIBLE_OUTAGE
 ```
 
-### Export your weekly schedule as an iCalendar
+### Print your daily schedule
+```console
+❯ temno schedule daily dnipro 5.1 # today by default
+08:00 - 09:00 - DEFINITE_OUTAGE
+16:00 - 19:30 - DEFINITE_OUTAGE
+
+❯ temno schedule daily dnipro 5.2 tomorrow 
+13:00 - 16:30 - DEFINITE_OUTAGE
+```
+
+### Export your schedule as an iCalendar
 ```console
 ❯ temno schedule weekly dnipro 2.1 --ical group_2_1.ics
+Calendar saved to "group_2_1.ics"
+
+❯ temno schedule daily dnipro 2.1 --ical group_2_1.ics
 Calendar saved to "group_2_1.ics"
 ```

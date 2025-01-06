@@ -12,6 +12,13 @@
             "args": ["schedule", "weekly", "${input:region}", "${input:group}"],
         },
         {
+            "name": "CLI Daily Schedule - Debug",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "temno",
+            "args": ["schedule", "daily", "${input:region}", "${input:group}", "${input:when}"],
+        },
+        {
             "name": "CLI Cities - Debug",
             "type": "debugpy",
             "request": "launch",
@@ -31,6 +38,12 @@
             "type": "promptString",
             "description": "your group: 1.1|1.2|2.1|...",
             "default": "2.1",
+        },
+        {
+            "id": "when",
+            "type": "promptString",
+            "description": "today|tomorrow",
+            "default": "today",
         },
     ],
 }
