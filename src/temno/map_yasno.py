@@ -5,14 +5,13 @@ from typing import assert_never, cast
 
 import more_itertools
 
-from temno import arange, model
-from yasno_api import schema as _yasno
+from temno import arange
+from temno.model import OutageEvent
+from yasno_api.schema import OutageEvent as YasnoOutageEvent
 
 
-def events_to_model_events(
-    events: Iterable[_yasno.OutageEvent],
-) -> Iterable[model.OutageEvent]:
-    sorted_events = cast(list[_yasno.OutageEvent], arange.sort(events))
+def events_to_model_events(events: Iterable[YasnoOutageEvent]) -> Iterable[OutageEvent]:
+    sorted_events = cast(list[YasnoOutageEvent], arange.sort(events))
     groups_by_type = more_itertools.split_when(
         sorted_events,
         pred=lambda a, b: a.type != b.type,
@@ -21,8 +20,8 @@ def events_to_model_events(
 
 
 def __events_to_model_events(
-    events: Iterable[_yasno.OutageEvent],
-) -> Iterable[model.OutageEvent]:
+    events: Iterable[YasnoOutageEvent],
+) -> Iterable[OutageEvent]:
     temno_events = map(__event_to_model_event, events)
     head = more_itertools.first(temno_events, None)
     if head is None:
@@ -30,19 +29,19 @@ def __events_to_model_events(
 
     events_type = head.type
     if events_type == "DEFINITE_OUTAGE":
-        factory = model.OutageEvent.create_definite
+        factory = OutageEvent.create_definite
     elif events_type == "POSSIBLE_OUTAGE":
-        factory = model.OutageEvent.create_possible
+        factory = OutageEvent.create_possible
     else:
         assert_never(events_type)
 
     temno_events = more_itertools.prepend(head, temno_events)
     combined_events = arange.combine_consecutive_groups(temno_events, factory)
-    return cast(Iterable[model.OutageEvent], combined_events)
+    return cast(Iterable[OutageEvent], combined_events)
 
 
-def __event_to_model_event(v: _yasno.OutageEvent) -> model.OutageEvent:
-    return model.OutageEvent(
+def __event_to_model_event(v: YasnoOutageEvent) -> OutageEvent:
+    return OutageEvent(
         start=__hours_to_time(v.start),
         end=__hours_to_time(v.end),
         type=v.type,

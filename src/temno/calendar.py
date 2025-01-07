@@ -1,6 +1,6 @@
-from collections.abc import Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator
 from datetime import date, datetime, timedelta
-from typing import Final, Protocol
+from typing import Final
 from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Event
@@ -9,31 +9,31 @@ from temno.model import OutageEvent
 
 _TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
 
-
-class IdGenerator(Protocol):
-    def __call__(self) -> str: ...
-
-
-class Clock(Protocol):
-    def __call__(self) -> datetime:
-        "Returns the current time."
-        ...
+type IDGenerator = Callable[[], str]
+type Clock = Callable[[], datetime]
 
 
 def render_calendar(
     events_by_day: Iterable[Iterable[OutageEvent]],
     clock: Clock,
-    get_next_id: IdGenerator,
+    get_next_id: IDGenerator,
+    start_from: date | None = None,
 ) -> Calendar:
     "Creates a calendar assuming that the first day is today."
     c = Calendar()
     c.update(__calendar_metadata())
-    now = clock()
-    pairs = zip(__iter_dates(now.date()), events_by_day)
+
+    ts = clock()
+    if start_from is None:
+        start_from = ts.date()
+
+    pairs = zip(__iter_dates(start_from), events_by_day)
     for day, events in pairs:
         for event in events:
-            c_event = __calendar_event(day, event, now, get_next_id)
+            uid = get_next_id()
+            c_event = __calendar_event(day, event, ts, uid)
             c.add_component(c_event)
+
     return c
 
 
@@ -53,14 +53,15 @@ def __calendar_event(
     day: date,
     outage_event: OutageEvent,
     ts: datetime,
-    get_next_id: IdGenerator,
+    uid: str,
 ) -> Event:
     event = Event()
     event.add("summary", outage_event.type)
     event.add("dtstamp", ts)
-    event["uid"] = get_next_id()
+    event.add("uid", uid)
 
     event.start = datetime.combine(day, outage_event.start, _TZ)
+
     end_day = day if outage_event.end.hour != 0 else day + timedelta(days=1)
     event.end = datetime.combine(end_day, outage_event.end, _TZ)
 

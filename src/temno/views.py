@@ -2,7 +2,8 @@ from collections.abc import Iterable
 from operator import attrgetter
 from typing import Protocol
 
-from temno import map_yasno, model
+from temno import map_yasno
+from temno.model import City, House, OutageEvent, Region, Street, When
 from yasno_api import schema
 
 
@@ -30,12 +31,12 @@ class TemnoException(Exception):
 
 
 def daily_events(
-    region: model.Region,
+    region: Region,
     group: str,
-    when: model.When = model.When("today"),
+    when: When = When("today"),
     *,
     api: ScheduleAPI,
-) -> Iterable[model.OutageEvent]:
+) -> Iterable[OutageEvent]:
     schedule = api.fetch_schedule()
 
     if not schedule.daily:
@@ -60,8 +61,8 @@ def daily_events(
 
 
 def weekly_events(
-    region: model.Region, group: str, *, api: ScheduleAPI
-) -> list[Iterable[model.OutageEvent]]:
+    region: Region, group: str, *, api: ScheduleAPI
+) -> list[Iterable[OutageEvent]]:
     schedule = api.fetch_schedule()
 
     if not schedule.weekly:
@@ -84,8 +85,8 @@ def weekly_events(
 
 
 def cities(
-    region: model.Region, search: str | None = None, *, api: LocationAPI
-) -> Iterable[model.City]:
+    region: Region, search: str | None = None, *, api: LocationAPI
+) -> Iterable[City]:
     response = api.fetch_cities(region.to_yasno())
     if not search:
         return response
@@ -93,8 +94,8 @@ def cities(
 
 
 def streets(
-    region: model.Region, city_id: int, search: str | None = None, *, api: LocationAPI
-) -> Iterable[model.Street]:
+    region: Region, city_id: int, search: str | None = None, *, api: LocationAPI
+) -> Iterable[Street]:
     response = api.fetch_streets(region.to_yasno(), city_id)
     if not search:
         return response
@@ -102,8 +103,8 @@ def streets(
 
 
 def houses(
-    region: model.Region, street_id: int, search: str | None = None, *, api: LocationAPI
-) -> Iterable[model.House]:
+    region: Region, street_id: int, search: str | None = None, *, api: LocationAPI
+) -> Iterable[House]:
     response = api.fetch_houses(region.to_yasno(), street_id)
     if not search:
         return response

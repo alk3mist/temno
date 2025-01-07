@@ -7,7 +7,7 @@ from dependency_injector.containers import DeclarativeContainer
 from dependency_injector.providers import Configuration, Singleton
 from rich.console import Console
 
-from temno.calendar import Clock, IdGenerator
+from temno.calendar import Clock, IDGenerator
 from temno.views import YasnoAPI
 from yasno_api import client
 
@@ -32,7 +32,7 @@ def err_console(pretty: bool) -> Console:
     )
 
 
-def get_id_generator() -> IdGenerator:
+def get_id_generator() -> IDGenerator:
     return lambda: uuid.uuid4().hex
 
 
