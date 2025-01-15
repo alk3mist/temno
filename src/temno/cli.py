@@ -1,6 +1,7 @@
 import logging
 from calendar import day_abbr
 from collections.abc import Iterable
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Annotated, assert_never
 
@@ -60,15 +61,15 @@ def daily(
         _log(output)
         raise typer.Exit()
 
-    events_by_day: list[Iterable[OutageEvent]]
+    today = _today()
     if when == When.today:
-        events_by_day = [events]
+        start_day = today
     elif when == When.tomorrow:
-        events_by_day = [[], events]
+        start_day = today + timedelta(days=1)
     else:
         assert_never(when)
 
-    _save_calendar(events_by_day, ical)
+    _save_calendar([events], start_day, ical)
 
 
 @schedule.command(help="Print the weekly outage schedule or export as iCalendar.")
@@ -86,7 +87,9 @@ def weekly(
             return _error_exit(e.msg)
 
     if ical is not None:
-        _save_calendar(events, ical)
+        today = _today()
+        monday = today - timedelta(days=today.weekday())
+        _save_calendar(events, monday, ical)
         raise typer.Exit()
 
     for i, day in enumerate(events):
@@ -116,10 +119,20 @@ def _log(msg: str) -> None:
     console.print(msg)
 
 
-def _save_calendar(events_by_day: Iterable[Iterable[OutageEvent]], ical: Path) -> None:
+def _today():
+    clock = container.clock()
+    today = clock().date()
+    return today
+
+
+def _save_calendar(
+    events_by_day: Iterable[Iterable[OutageEvent]],
+    start_day: date,
+    ical: Path,
+) -> None:
     clock = container.clock()
     get_next_id = container.id_generator()
-    cal = render_calendar(events_by_day, clock, get_next_id)
+    cal = render_calendar(events_by_day, clock, get_next_id, start_day)
     ical.write_bytes(cal.to_ical())
     _log(f'Calendar saved to "{ical.name}"')
 
