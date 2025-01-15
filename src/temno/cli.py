@@ -49,7 +49,7 @@ def daily(
     ical: ICalOption = None,
 ) -> None:
     with _simple_progress() as progress:
-        progress.add_task("Fetching schedule...")
+        progress.add_task("Fetching the schedule...")
         try:
             yasno = container.yasno()
             events = views.daily_events(region, group, when, api=yasno)
@@ -79,7 +79,7 @@ def weekly(
     ical: ICalOption = None,
 ) -> None:
     with _simple_progress() as progress:
-        progress.add_task("Fetching schedule...")
+        progress.add_task("Fetching the schedule...")
         try:
             yasno = container.yasno()
             events = views.weekly_events(region, group, api=yasno)
