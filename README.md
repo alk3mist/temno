@@ -10,16 +10,16 @@ A CLI for [Yasno](https://yasno.com.ua) Outage Scheduling API.
 ## Installation
 
 Install with `uv`:
-```console
+```shell
 uv tool install --from git+https://github.com/alk3mist/temno.git temno
 ```
 or with `pipx`:
-```console
+```shell
 pipx install --python=3.13 "temno @ git+https://github.com/alk3mist/temno.git"
 ```
 
 You can also run commands without installing:
-```console
+```shell
 uvx --from git+https://github.com/alk3mist/temno.git temno <command>
 ```
 
