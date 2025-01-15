@@ -134,7 +134,7 @@ def _save_calendar(
     get_next_id = container.id_generator()
     cal = render_calendar(events_by_day, clock, get_next_id, start_day)
     ical.write_bytes(cal.to_ical())
-    _log(f'Calendar saved to "{ical.name}"')
+    _log(f'Calendar saved to "{ical}"')
 
 
 def _event_to_str(e: OutageEvent) -> str:
