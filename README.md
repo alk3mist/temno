@@ -71,8 +71,8 @@ SUN - 21:00 - 00:00 - POSSIBLE_OUTAGE
 ### Export your schedule as an iCalendar
 ```console
 ❯ temno schedule weekly dnipro 2.1 --ical group_2_1.ics
-Calendar saved to "group_2_1.ics"
+The calendar saved to "/home/greenlantern/group_2_1.ics"
 
 ❯ temno schedule daily dnipro 2.1 --ical group_2_1.ics
-Calendar saved to "group_2_1.ics"
+The calendar saved to "/home/greenlantern/group_2_1.ics"
 ```
