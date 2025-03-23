@@ -2,23 +2,26 @@
 
 A CLI for [Yasno](https://yasno.com.ua) Outage Scheduling API.
 
-> [!WARNING] 
+> [!WARNING]
 > 🚧 This is a pet project / sandbox for exploring various dev tools.
 > Do not use in production 😎.
-
 
 ## Installation
 
 Install with `uv`:
+
 ```shell
 uv tool install --from git+https://github.com/alk3mist/temno.git temno
 ```
+
 or with `pipx`:
+
 ```shell
 pipx install --python=3.13 "temno @ git+https://github.com/alk3mist/temno.git"
 ```
 
 You can also run commands without installing:
+
 ```shell
 uvx --from git+https://github.com/alk3mist/temno.git temno <command>
 ```
@@ -26,6 +29,7 @@ uvx --from git+https://github.com/alk3mist/temno.git temno <command>
 ## Usage
 
 ### Print help
+
 ```console
 ❯ temno --help
                                                                       
@@ -34,6 +38,7 @@ uvx --from git+https://github.com/alk3mist/temno.git temno <command>
 ```
 
 ### Find your blackout group
+
 ```console
 ❯ temno cities dnipro 
 1 - м. Апостолове
@@ -51,6 +56,7 @@ uvx --from git+https://github.com/alk3mist/temno.git temno <command>
 ```
 
 ### Print your weekly schedule
+
 ```console
 ❯ temno schedule weekly dnipro 1.1
 MON - 00:00 - 04:00 - POSSIBLE_OUTAGE
@@ -59,6 +65,7 @@ SUN - 21:00 - 00:00 - POSSIBLE_OUTAGE
 ```
 
 ### Print your daily schedule
+
 ```console
 ❯ temno schedule daily dnipro 5.1 # today by default
 08:00 - 09:00 - DEFINITE_OUTAGE
@@ -69,6 +76,7 @@ SUN - 21:00 - 00:00 - POSSIBLE_OUTAGE
 ```
 
 ### Export your schedule as an iCalendar
+
 ```console
 ❯ temno schedule weekly dnipro 2.1 --ical group_2_1.ics
 The calendar saved to "/home/greenlantern/group_2_1.ics"
