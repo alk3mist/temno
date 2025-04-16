@@ -1,6 +1,6 @@
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Iterable, Iterator
 from datetime import date, datetime, timedelta
-from typing import Final
+from typing import Final, Protocol
 from zoneinfo import ZoneInfo
 
 from icalendar import Calendar, Event
@@ -9,8 +9,13 @@ from temno.model import OutageEvent
 
 _TZ: Final[ZoneInfo] = ZoneInfo("Europe/Kyiv")
 
-type IDGenerator = Callable[[], str]
-type Clock = Callable[[], datetime]
+
+class IDGenerator(Protocol):
+    def __call__(self) -> str: ...
+
+
+class Clock(Protocol):
+    def __call__(self) -> datetime: ...
 
 
 def render_calendar(

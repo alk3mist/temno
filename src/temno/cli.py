@@ -6,11 +6,12 @@ from pathlib import Path
 from typing import Annotated, assert_never
 
 import typer
+from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from temno import views
-from temno.bootstrap import container
-from temno.calendar import render_calendar
+from temno.bootstrap import Config, container
+from temno.calendar import Clock, IDGenerator, render_calendar
 from temno.model import OutageEvent, Region, When
 
 app = typer.Typer(no_args_is_help=True)
@@ -22,7 +23,7 @@ def setup(
     debug: Annotated[bool, typer.Option()] = False,
     pretty: bool = True,
 ) -> None:
-    container.config.from_dict({"pretty": pretty})
+    container.get(Config).pretty = pretty
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
@@ -51,7 +52,7 @@ def daily(
     with _simple_progress() as progress:
         progress.add_task("Fetching the schedule...")
         try:
-            yasno = container.yasno()
+            yasno = container.get(views.YasnoAPI)
             events = views.daily_events(region, group, when, api=yasno)
         except views.TemnoException as e:
             return _error_exit(e.msg)
@@ -81,7 +82,7 @@ def weekly(
     with _simple_progress() as progress:
         progress.add_task("Fetching the schedule...")
         try:
-            yasno = container.yasno()
+            yasno = container.get(views.YasnoAPI)
             events = views.weekly_events(region, group, api=yasno)
         except views.TemnoException as e:
             return _error_exit(e.msg)
@@ -99,7 +100,7 @@ def weekly(
 
 
 def _simple_progress() -> Progress:
-    console = container.console()
+    console = container.get(Console)
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -109,18 +110,18 @@ def _simple_progress() -> Progress:
 
 
 def _error_exit(msg: str) -> None:
-    err_console = container.err_console()
+    err_console = container.get(Console, qualifier="error")
     err_console.print(msg)
     raise typer.Exit(1)
 
 
 def _log(msg: str) -> None:
-    console = container.console()
+    console = container.get(Console)
     console.print(msg)
 
 
-def _today():
-    clock = container.clock()
+def _today() -> date:
+    clock = container.get(Clock)
     today = clock().date()
     return today
 
@@ -130,8 +131,8 @@ def _save_calendar(
     start_day: date,
     ical: Path,
 ) -> None:
-    clock = container.clock()
-    get_next_id = container.id_generator()
+    clock = container.get(Clock)
+    get_next_id = container.get(IDGenerator)
     cal = render_calendar(events_by_day, clock, get_next_id, start_day)
     ical.write_bytes(cal.to_ical())
     _log(f'The calendar saved to "{ical}"')
@@ -156,7 +157,7 @@ def cities(
 ) -> None:
     with _simple_progress() as progress:
         progress.add_task("Fetching cities...")
-        yasno = container.yasno()
+        yasno = container.get(views.YasnoAPI)
         cities = views.cities(region, search, api=yasno)
 
     output = "\n".join((f"{c.id} - {c.name}" for c in cities))
@@ -171,7 +172,7 @@ def streets(
 ) -> None:
     with _simple_progress() as progress:
         progress.add_task("Fetching streets...")
-        yasno = container.yasno()
+        yasno = container.get(views.YasnoAPI)
         streets = views.streets(region, city_id, search, api=yasno)
 
     output = "\n".join((f"{s.id} - {s.name}" for s in streets))
@@ -188,7 +189,7 @@ def houses(
 ) -> None:
     with _simple_progress() as progress:
         progress.add_task("Fetching houses...")
-        yasno = container.yasno()
+        yasno = container.get(views.YasnoAPI)
         houses = views.houses(region, street_id, search, api=yasno)
 
     output = "\n".join((f"{h.name} - {h.group}" for h in houses))

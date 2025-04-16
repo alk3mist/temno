@@ -4,9 +4,9 @@ Date: 2025-01-06
 
 ## Status
 
-Accepted
-
 Supersedes [7. Use Wireup for DI](0007-use-wireup-for-di.md)
+
+Superseded by [9. Use Wireup for DI](0009-use-wireup-for-di.md)
 
 ## Context
 

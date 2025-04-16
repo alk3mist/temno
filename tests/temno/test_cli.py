@@ -66,7 +66,7 @@ def test_daily_schedule(
     schedule_component: ScheduleComponent,
 ):
     dummy_api = DummyAPI(schedule_component)
-    with container.yasno.override(dummy_api):  # type: ignore
+    with container.override.service(target=YasnoAPI, new=dummy_api):  # type: ignore
         result = runner.invoke(app, ["schedule", "daily", *args])
 
     assert result.exit_code == code, result.output
